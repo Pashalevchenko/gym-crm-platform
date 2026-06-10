@@ -1,0 +1,11 @@
+db:
+  url: jdbc:h2:mem:gym_crm_test;MODE=PostgreSQL;DEFAULT_NULL_ORDERING=HIGH;DB_CLOSE_DELAY=-1;REFERENTIAL_INTEGRITY=FALSE
+  driver: org.postgresql.Driver
+
+liquibase:
+  changelog:
+    master: classpath:db/test-changelog-master.xml
+
+app:
+  api:
+    base-path: /api/v1

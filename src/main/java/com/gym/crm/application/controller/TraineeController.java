@@ -1,0 +1,102 @@
+package com.gym.crm.application.controller;
+
+import com.gym.crm.application.facade.GymAppFacade;
+import com.gym.crm.application.openapi.ActivationStatusRequest;
+import com.gym.crm.application.openapi.AssignedTrainerResponse;
+import com.gym.crm.application.openapi.GetTraineeTrainingResponse;
+import com.gym.crm.application.openapi.TraineeAssignedTrainersUpdateRequest;
+import com.gym.crm.application.openapi.TraineeAssignedTrainersUpdateResponse;
+import com.gym.crm.application.openapi.TraineeCreateRequest;
+import com.gym.crm.application.openapi.TraineeCreateResponse;
+import com.gym.crm.application.openapi.TraineeGetResponse;
+import com.gym.crm.application.openapi.TraineeUpdateRequest;
+import com.gym.crm.application.openapi.TraineeUpdateResponse;
+import com.gym.crm.application.validation.annotation.ValidUsername;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import java.time.LocalDate;
+import java.util.List;
+
+@RestController
+@RequestMapping("${app.api.base-path}/trainees")
+@RequiredArgsConstructor
+public class TraineeController {
+
+    private final GymAppFacade facade;
+
+    @PostMapping("/register")
+    public ResponseEntity<TraineeCreateResponse> register(@RequestBody @Valid TraineeCreateRequest request) {
+        TraineeCreateResponse response = facade.createTrainee(request);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{username}")
+    public ResponseEntity<TraineeGetResponse> getTraineeProfile(@PathVariable(name = "username") @ValidUsername String username) {
+        TraineeGetResponse response = facade.getTraineeByUsername(username);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/{username}")
+    public ResponseEntity<TraineeUpdateResponse> updateTraineeProfile(@PathVariable (name = "username") @ValidUsername String username, @RequestBody @Valid TraineeUpdateRequest request) {
+        TraineeUpdateResponse response = facade.updateTrainee(request, username);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/{username}")
+    public ResponseEntity<Void> deleteTrainee(@PathVariable(name = "username") @ValidUsername String username) {
+        facade.deleteTraineeByUsername(username);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/{username}/activation")
+    public ResponseEntity<Void> toggleActive(@PathVariable(name = "username") @ValidUsername String username,
+                                             @RequestBody @Valid ActivationStatusRequest request) {
+        facade.changeActiveStatus(username, request);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{username}/trainings")
+    public ResponseEntity<List<GetTraineeTrainingResponse>> getTraineeTrainings(@PathVariable(name = "username") String username,
+                                                                                @RequestParam(name = "fromDate", required = false)
+                                                                                @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+                                                                                @RequestParam(name = "toDate", required = false)
+                                                                                @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
+                                                                                @RequestParam(name = "trainerName", required = false) String trainerName,
+                                                                                @RequestParam(name = "trainingType", required = false) String trainingType) {
+        List<GetTraineeTrainingResponse> response = facade.getTraineeTrainings(username, fromDate, toDate, trainerName, trainingType);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/{username}/trainers")
+    public ResponseEntity<TraineeAssignedTrainersUpdateResponse> updateTraineeTrainers(@PathVariable(name = "username") String username,
+                                                                                       @RequestBody @Valid TraineeAssignedTrainersUpdateRequest request) {
+        TraineeAssignedTrainersUpdateResponse response = facade.updateTraineeTrainersList(username, request);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{username}/available-trainers")
+    public ResponseEntity<List<AssignedTrainerResponse>> getAvailableTrainers(@PathVariable (name = "username") @ValidUsername String username) {
+        List<AssignedTrainerResponse> response = facade.getNotAssignedTrainers(username);
+
+        return ResponseEntity.ok(response);
+    }
+}

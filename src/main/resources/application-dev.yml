@@ -1,0 +1,15 @@
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/gym-crm-application-dev
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+  jpa:
+    show-sql: true
+
+logging:
+  level:
+    root: INFO
+    org.springframework: INFO
+    com.gym.crm: DEBUG

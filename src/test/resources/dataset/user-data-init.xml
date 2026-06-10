@@ -1,0 +1,5 @@
+<dataset>
+    <users id="10" first_name="Borys" last_name="Burpee" username="borys.burpee" password="12345" is_active="true"/>
+    <users id="12" first_name="Marta" last_name="Muscle" username="marta.muscle" password="12345" is_active="true"/>
+    <users id="15" first_name="Pavlo" last_name="Plank" username="pavlo.plank" password="12345" is_active="true"/>
+</dataset>

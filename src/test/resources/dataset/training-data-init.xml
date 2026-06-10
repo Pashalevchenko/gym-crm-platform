@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dataset>
+    <users id="10" first_name="Borys" last_name="Burpee" username="borys.burpee" password="12345" is_active="true"/>
+    <users id="12" first_name="Marta" last_name="Muscle" username="marta.muscle" password="12345" is_active="true"/>
+    <users id="15" first_name="Pavlo" last_name="Plank" username="pavlo.plank" password="12345" is_active="true"/>
+    <users id="18" first_name="Fedir" last_name="Foamroller" username="fedir.foamroller" password="12345" is_active="true"/>
+
+    <training_types id="10" training_type_name="Penguin Yoga"/>
+    <training_types id="12" training_type_name="Strength Shenanigans"/>
+
+    <trainees id="10" date_of_birth="2000-01-01" address="Kyiv" user_id="10"/>
+    <trainees id="12" date_of_birth="2001-02-02" address="Lviv" user_id="12"/>
+    <trainers id="10" specialization_id="10" user_id="15"/>
+    <trainers id="12" specialization_id="12" user_id="18"/>
+
+    <trainings id="10" training_name="Morning Penguin Stretch" training_date="2026-04-10" training_duration="60"
+               training_type_id="10" trainee_id="10" trainer_id="10"/>
+    <trainings id="12" training_name="Evening Strength" training_date="2026-04-12" training_duration="45"
+               training_type_id="12" trainee_id="12" trainer_id="12"/>
+</dataset>
