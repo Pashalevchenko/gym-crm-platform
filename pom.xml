@@ -24,10 +24,8 @@
         <sonar.projectKey>Pashalevchenko_gym-crm-platform</sonar.projectKey>
         <sonar.organization>pashalevchenko</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+        <sonar.coverage.jacoco.xmlReportPaths>${project.basedir}/../gym-core-service/target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
     </properties>
-
-    <dependencies>
-    </dependencies>
 
     <build>
         <plugins>
@@ -37,11 +35,6 @@
                 <configuration>
                     <skip>true</skip>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.11</version>
             </plugin>
             <plugin>
                 <groupId>org.sonarsource.scanner.maven</groupId>
