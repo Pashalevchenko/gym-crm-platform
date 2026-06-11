@@ -1,0 +1,7 @@
+{
+  "firstName": "Test",
+  "lastName": "User",
+  "dateOfBirth": "2000-01-01",
+  "address": "Lviv",
+  "isActive": false
+}

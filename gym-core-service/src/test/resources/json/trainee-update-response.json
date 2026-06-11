@@ -1,0 +1,9 @@
+{
+  "firstName": "Test",
+  "lastName": "User",
+  "dateOfBirth": [2000, 1, 1],
+  "address": "Lviv",
+  "username": "test.user",
+  "isActive": false,
+  "trainers": []
+}
