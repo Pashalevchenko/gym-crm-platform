@@ -175,8 +175,8 @@
                             <inputSpec>${project.basedir}/src/main/resources/gia-api.yml</inputSpec>
                             <generatorName>spring</generatorName>
                             <output>${project.build.directory}/generated-sources/openapi</output>
-                            <apiPackage>com.gym.crm.application</apiPackage>
-                            <modelPackage>com.gym.crm.application.openapi</modelPackage>
+                            <apiPackage>com.gym.crm.platform</apiPackage>
+                            <modelPackage>com.gym.crm.platform.openapi</modelPackage>
                         </configuration>
                     </execution>
                 </executions>
