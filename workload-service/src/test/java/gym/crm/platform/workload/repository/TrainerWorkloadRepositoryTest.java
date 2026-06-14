@@ -15,7 +15,7 @@ class TrainerWorkloadRepositoryTest {
 
     private static final String USERNAME = "billy.herrington";
 
-    private final TrainerWorkloadRepository repository = new TrainerWorkloadRepository();
+    private final TrainerWorkloadRepositoryImpl repository = new TrainerWorkloadRepositoryImpl();
 
     @Test
     void save_shouldStoreTrainerWorkload() {

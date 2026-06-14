@@ -1,27 +1,14 @@
 package gym.crm.platform.workload.repository;
 
 import gym.crm.platform.workload.model.TrainerWorkload;
-import org.springframework.stereotype.Repository;
 
-import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 
-@Repository
-public class TrainerWorkloadRepository {
+public interface TrainerWorkloadRepository {
 
-    private final Map<String, TrainerWorkload> trainerWorkloads = new ConcurrentHashMap<>();
+    Optional<TrainerWorkload> findByUsername(String username);
 
-    public Optional<TrainerWorkload> findByUsername(String username) {
-        return Optional.ofNullable(trainerWorkloads.get(username));
-    }
+    TrainerWorkload save(TrainerWorkload trainerWorkload);
 
-    public TrainerWorkload save(TrainerWorkload trainerWorkload) {
-        trainerWorkloads.put(trainerWorkload.getTrainerUsername(), trainerWorkload);
-        return trainerWorkload;
-    }
-
-    public boolean existsByUsername(String username) {
-        return trainerWorkloads.containsKey(username);
-    }
+    boolean existsByUsername(String username);
 }

@@ -8,6 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 
 import java.time.LocalDate;
+import java.time.Month;
 import java.util.NoSuchElementException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -24,7 +25,7 @@ class TrainerWorkloadServiceTest {
     private static final int MONTH = 6;
 
     @Autowired
-    private TrainerWorkloadService service;
+    private TrainerWorkloadServiceImpl service;
 
     @Test
     void updateTrainerWorkload_shouldAddDuration_whenActionTypeAdd() {
@@ -70,7 +71,7 @@ class TrainerWorkloadServiceTest {
         service.updateTrainerWorkload(createRequest(60, ActionType.ADD));
 
         TrainerWorkloadRequest nextMonthRequest = createRequest(30, ActionType.ADD)
-                .trainingDate(LocalDate.of(YEAR, 7, 10));
+                .trainingDate(LocalDate.of(YEAR, Month.of(7), 10));
 
         service.updateTrainerWorkload(nextMonthRequest);
 

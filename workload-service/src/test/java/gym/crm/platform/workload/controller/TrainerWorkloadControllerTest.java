@@ -3,7 +3,7 @@ package gym.crm.platform.workload.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import gym.crm.platform.workload.openapi.ActionType;
 import gym.crm.platform.workload.openapi.TrainerWorkloadRequest;
-import gym.crm.platform.workload.service.TrainerWorkloadService;
+import gym.crm.platform.workload.service.TrainerWorkloadServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -38,7 +38,7 @@ class TrainerWorkloadControllerTest {
     private ObjectMapper mapper;
 
     @MockitoBean
-    private TrainerWorkloadService trainerWorkloadService;
+    private TrainerWorkloadServiceImpl trainerWorkloadService;
 
     @Test
     void updateTrainerWorkload_shouldReturnOk() throws Exception {
