@@ -71,7 +71,7 @@ class TrainerWorkloadServiceTest {
         service.updateTrainerWorkload(createRequest(60, ActionType.ADD));
 
         TrainerWorkloadRequest nextMonthRequest = createRequest(30, ActionType.ADD)
-                .trainingDate(LocalDate.of(YEAR, Month.of(7), 10));
+                .trainingDate(LocalDate.of(YEAR, Month.JULY, 10));
 
         service.updateTrainerWorkload(nextMonthRequest);
 
