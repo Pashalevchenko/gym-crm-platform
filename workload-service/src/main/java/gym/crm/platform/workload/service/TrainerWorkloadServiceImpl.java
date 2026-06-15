@@ -55,10 +55,10 @@ public class TrainerWorkloadServiceImpl implements TrainerWorkloadService {
 
     private TrainerWorkload createWorkload(TrainerWorkloadRequest request) {
         return new TrainerWorkload(request.getTrainerUsername(),
-                request.getTrainerFirstName(),
-                request.getTrainerLastName(),
-                request.getIsActive(),
-                new ArrayList<>());
+                                   request.getTrainerFirstName(),
+                                   request.getTrainerLastName(),
+                                   request.getIsActive(),
+                                   new ArrayList<>());
     }
 
     private TrainerWorkload refreshTrainer(TrainerWorkload workload, TrainerWorkloadRequest request) {
