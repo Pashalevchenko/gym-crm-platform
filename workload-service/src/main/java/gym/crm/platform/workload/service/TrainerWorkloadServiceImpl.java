@@ -4,7 +4,7 @@ import gym.crm.platform.workload.model.MonthSummary;
 import gym.crm.platform.workload.model.TrainerWorkload;
 import gym.crm.platform.workload.model.YearSummary;
 import gym.crm.platform.workload.openapi.TrainerWorkloadRequest;
-import gym.crm.platform.workload.repository.TrainerWorkloadRepositoryImpl;
+import gym.crm.platform.workload.repository.TrainerWorkloadRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -17,17 +17,17 @@ import java.util.NoSuchElementException;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class TrainerWorkloadServiceImpl implements TrainerWorkloadService{
+public class TrainerWorkloadServiceImpl implements TrainerWorkloadService {
 
-    private final TrainerWorkloadRepositoryImpl trainerWorkloadRepository;
+    private final TrainerWorkloadRepository repository;
 
     public void updateTrainerWorkload(TrainerWorkloadRequest request) {
-        TrainerWorkload workload = trainerWorkloadRepository.findByUsername(request.getTrainerUsername())
+        TrainerWorkload workload = repository.findByUsername(request.getTrainerUsername())
                 .map(existing -> refreshTrainer(existing, request))
                 .orElseGet(() -> createWorkload(request));
 
         updateMonthlySummary(workload, request);
-        trainerWorkloadRepository.save(workload);
+        repository.save(workload);
 
         log.info("Trainer workload updated. username={}, actionType={}, date={}, duration={}",
                 request.getTrainerUsername(),
@@ -49,7 +49,7 @@ public class TrainerWorkloadServiceImpl implements TrainerWorkloadService{
     }
 
     private TrainerWorkload findWorkload(String username) {
-        return trainerWorkloadRepository.findByUsername(username)
+        return repository.findByUsername(username)
                 .orElseThrow(() -> new NoSuchElementException(String.format("Trainer workload not found: %s", username)));
     }
 
@@ -58,8 +58,7 @@ public class TrainerWorkloadServiceImpl implements TrainerWorkloadService{
                 request.getTrainerFirstName(),
                 request.getTrainerLastName(),
                 request.getIsActive(),
-                new ArrayList<>()
-        );
+                new ArrayList<>());
     }
 
     private TrainerWorkload refreshTrainer(TrainerWorkload workload, TrainerWorkloadRequest request) {
@@ -88,21 +87,25 @@ public class TrainerWorkloadServiceImpl implements TrainerWorkloadService{
         return years.stream()
                 .filter(summary -> summary.getYear().equals(year))
                 .findFirst()
-                .orElseGet(() -> {
-                    YearSummary summary = new YearSummary(year, new ArrayList<>());
-                    years.add(summary);
-                    return summary;
-                });
+                .orElseGet(() -> createYearSummary(years, year));
     }
 
     private MonthSummary getOrCreateMonthSummary(List<MonthSummary> months, int month) {
         return months.stream()
                 .filter(summary -> summary.getMonth().equals(month))
                 .findFirst()
-                .orElseGet(() -> {
-                    MonthSummary summary = new MonthSummary(month, 0);
-                    months.add(summary);
-                    return summary;
-                });
+                .orElseGet(() -> createMonthSummary(months, month));
+    }
+
+    private MonthSummary createMonthSummary(List<MonthSummary> months, int month) {
+        MonthSummary summary = new MonthSummary(month, 0);
+        months.add(summary);
+        return summary;
+    }
+
+    private YearSummary createYearSummary(List<YearSummary> years, int year) {
+        YearSummary summary = new YearSummary(year, new ArrayList<>());
+        years.add(summary);
+        return summary;
     }
 }

@@ -14,44 +14,46 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class TrainerWorkloadRepositoryTest {
 
     private static final String USERNAME = "billy.herrington";
+    private static final String UNKNOWN_USERNAME = "unknown.user";
 
     private final TrainerWorkloadRepositoryImpl repository = new TrainerWorkloadRepositoryImpl();
 
     @Test
     void save_shouldStoreTrainerWorkload() {
-        TrainerWorkload workload = buildTrainer();
+        TrainerWorkload expected = buildTrainer();
 
-        TrainerWorkload saved = repository.save(workload);
+        TrainerWorkload actual = repository.save(expected);
 
-        assertSame(workload, saved);
+        assertSame(expected, actual);
         assertTrue(repository.existsByUsername(USERNAME));
     }
 
     @Test
     void findByUsername_shouldReturnTrainerWorkload_whenExists() {
         TrainerWorkload workload = buildTrainer();
-
         repository.save(workload);
 
-        Optional<TrainerWorkload> result = repository.findByUsername(USERNAME);
+        Optional<TrainerWorkload> actual = repository.findByUsername(USERNAME);
 
-        assertTrue(result.isPresent());
-        assertEquals(USERNAME, result.get().getTrainerUsername());
+        assertTrue(actual.isPresent());
+        assertEquals(USERNAME, actual.get().getTrainerUsername());
     }
 
     @Test
     void findByUsername_shouldReturnEmpty_whenNotExists() {
-        Optional<TrainerWorkload> result = repository.findByUsername("unknown.user");
+        Optional<TrainerWorkload> actual = repository.findByUsername("unknown.user");
 
-        assertTrue(result.isEmpty());
+        assertTrue(actual.isEmpty());
     }
 
     @Test
     void existsByUsername_shouldReturnFalse_whenNotExists() {
-        assertFalse(repository.existsByUsername("unknown.user"));
+        boolean actual = repository.existsByUsername(UNKNOWN_USERNAME);
+
+        assertFalse(actual);
     }
 
-    private TrainerWorkload buildTrainer(){
+    private TrainerWorkload buildTrainer() {
         return new TrainerWorkload(USERNAME, "Billy", "Herrington", true, new ArrayList<>());
     }
 }

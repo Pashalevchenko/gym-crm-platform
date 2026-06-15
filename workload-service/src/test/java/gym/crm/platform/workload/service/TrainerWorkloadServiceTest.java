@@ -75,25 +75,27 @@ class TrainerWorkloadServiceTest {
 
         service.updateTrainerWorkload(nextMonthRequest);
 
-        int juneWorkload = service.getMonthlyWorkload(USERNAME, YEAR, MONTH);
-        int julyWorkload = service.getMonthlyWorkload(USERNAME, YEAR, 7);
+        int actualJuneWorkload = service.getMonthlyWorkload(USERNAME, YEAR, MONTH);
+        int actualJulyWorkload = service.getMonthlyWorkload(USERNAME, YEAR, 7);
 
-        assertEquals(60, juneWorkload);
-        assertEquals(30, julyWorkload);
+        assertEquals(60, actualJuneWorkload);
+        assertEquals(30, actualJulyWorkload);
     }
 
     @Test
     void getMonthlyWorkload_shouldReturnZero_whenTrainerExistsButMonthNotExists() {
         service.updateTrainerWorkload(createRequest(60, ActionType.ADD));
 
-        int result = service.getMonthlyWorkload(USERNAME, YEAR, 7);
+        int actual = service.getMonthlyWorkload(USERNAME, YEAR, 7);
 
-        assertEquals(0, result);
+        assertEquals(0, actual);
     }
 
     @Test
     void getMonthlyWorkload_shouldThrowException_whenTrainerNotFound() {
-        assertThrows(NoSuchElementException.class, () -> service.getMonthlyWorkload("unknown.user", YEAR, MONTH));
+        NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> service.getMonthlyWorkload("unknown.user", YEAR, MONTH));
+
+        assertEquals("Trainer workload not found: unknown.user", exception.getMessage());
     }
 
     private TrainerWorkloadRequest createRequest(int duration, ActionType actionType) {

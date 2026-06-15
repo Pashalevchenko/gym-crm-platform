@@ -8,7 +8,7 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Repository
-public class TrainerWorkloadRepositoryImpl implements TrainerWorkloadRepository{
+public class TrainerWorkloadRepositoryImpl implements TrainerWorkloadRepository {
 
     private final Map<String, TrainerWorkload> trainerWorkloads = new ConcurrentHashMap<>();
 
