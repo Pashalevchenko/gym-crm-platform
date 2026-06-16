@@ -9,7 +9,8 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 class WorkloadServiceTests {
 
     @Test
-    void contextLoads() {}
+    void contextLoads() {
+    }
 
     @Test
     void mainRuns() {
