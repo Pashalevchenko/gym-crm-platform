@@ -100,12 +100,14 @@ public class TrainerWorkloadServiceImpl implements TrainerWorkloadService {
     private MonthSummary createMonthSummary(List<MonthSummary> months, int month) {
         MonthSummary summary = new MonthSummary(month, 0);
         months.add(summary);
+
         return summary;
     }
 
     private YearSummary createYearSummary(List<YearSummary> years, int year) {
         YearSummary summary = new YearSummary(year, new ArrayList<>());
         years.add(summary);
+
         return summary;
     }
 }

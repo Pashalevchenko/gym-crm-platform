@@ -31,9 +31,9 @@ class TrainerWorkloadServiceTest {
     void updateTrainerWorkload_shouldAddDuration_whenActionTypeAdd() {
         service.updateTrainerWorkload(createRequest(60, ActionType.ADD));
 
-        int result = service.getMonthlyWorkload(USERNAME, YEAR, MONTH);
+        int actual = service.getMonthlyWorkload(USERNAME, YEAR, MONTH);
 
-        assertEquals(60, result);
+        assertEquals(60, actual);
     }
 
     @Test
@@ -41,9 +41,9 @@ class TrainerWorkloadServiceTest {
         service.updateTrainerWorkload(createRequest(60, ActionType.ADD));
         service.updateTrainerWorkload(createRequest(30, ActionType.ADD));
 
-        int result = service.getMonthlyWorkload(USERNAME, YEAR, MONTH);
+        int actual = service.getMonthlyWorkload(USERNAME, YEAR, MONTH);
 
-        assertEquals(90, result);
+        assertEquals(90, actual);
     }
 
     @Test
@@ -51,9 +51,9 @@ class TrainerWorkloadServiceTest {
         service.updateTrainerWorkload(createRequest(90, ActionType.ADD));
         service.updateTrainerWorkload(createRequest(30, ActionType.DELETE));
 
-        int result = service.getMonthlyWorkload(USERNAME, YEAR, MONTH);
+        int actual = service.getMonthlyWorkload(USERNAME, YEAR, MONTH);
 
-        assertEquals(60, result);
+        assertEquals(60, actual);
     }
 
     @Test
@@ -61,9 +61,9 @@ class TrainerWorkloadServiceTest {
         service.updateTrainerWorkload(createRequest(30, ActionType.ADD));
         service.updateTrainerWorkload(createRequest(60, ActionType.DELETE));
 
-        int result = service.getMonthlyWorkload(USERNAME, YEAR, MONTH);
+        int actual = service.getMonthlyWorkload(USERNAME, YEAR, MONTH);
 
-        assertEquals(0, result);
+        assertEquals(0, actual);
     }
 
     @Test
