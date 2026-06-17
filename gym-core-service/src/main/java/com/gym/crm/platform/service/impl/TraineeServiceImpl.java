@@ -1,6 +1,10 @@
 package com.gym.crm.platform.service.impl;
 
 import com.gym.crm.platform.actuator.metrics.MetricsService;
+import com.gym.crm.platform.client.workload.WorkloadRequestMapper;
+import com.gym.crm.platform.client.workload.WorkloadUpdateEvent;
+import com.gym.crm.platform.client.workload.model.ActionType;
+import com.gym.crm.platform.client.workload.model.TrainerWorkloadRequest;
 import com.gym.crm.platform.entity.Trainee;
 import com.gym.crm.platform.entity.Trainer;
 import com.gym.crm.platform.entity.Training;
@@ -15,6 +19,7 @@ import com.gym.crm.platform.service.TraineeService;
 import com.gym.crm.platform.validation.TraineeValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,6 +42,8 @@ public class TraineeServiceImpl implements TraineeService {
     private final MetricsService metrics;
     private final TraineeValidator validator;
     private final PasswordEncoder passwordEncoder;
+    private final WorkloadRequestMapper requestMapper;
+    private final ApplicationEventPublisher publisher;
 
     @Transactional
     @Override
@@ -134,7 +141,14 @@ public class TraineeServiceImpl implements TraineeService {
     public void deleteTraineeByUsername(String username) {
         validator.validateUsername(username);
 
+        Trainee trainee = getTraineeByUsername(username);
+        List<TrainerWorkloadRequest> workloadRequests = trainee.getTrainings().stream()
+                .map(training -> requestMapper.toRequest(training, ActionType.DELETE))
+                .toList();
+
         traineeRepository.deleteByUserUsername(username);
+
+        publisher.publishEvent(new WorkloadUpdateEvent(workloadRequests));
     }
 
     @Transactional(readOnly = true)
