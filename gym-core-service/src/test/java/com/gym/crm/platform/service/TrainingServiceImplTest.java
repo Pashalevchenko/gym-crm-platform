@@ -5,6 +5,10 @@ import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import com.gym.crm.platform.actuator.metrics.MetricsService;
+import com.gym.crm.platform.client.workload.WorkloadRequestMapper;
+import com.gym.crm.platform.client.workload.WorkloadUpdateEvent;
+import com.gym.crm.platform.client.workload.model.ActionType;
+import com.gym.crm.platform.client.workload.model.TrainerWorkloadRequest;
 import com.gym.crm.platform.entity.Trainee;
 import com.gym.crm.platform.entity.Trainer;
 import com.gym.crm.platform.entity.Training;
@@ -21,6 +25,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -49,6 +54,12 @@ class TrainingServiceImplTest {
     @Mock
     private MetricsService metrics;
 
+    @Mock
+    private WorkloadRequestMapper requestMapper;
+
+    @Mock
+    private ApplicationEventPublisher eventPublisher;
+
     @InjectMocks
     private TrainingServiceImpl service;
 
@@ -71,6 +82,8 @@ class TrainingServiceImplTest {
     @Test
     @DisplayName("Should validate and create training")
     void createTraining_shouldValidateAndCreateTraining() {
+        TrainerWorkloadRequest workloadRequest = new TrainerWorkloadRequest()
+                .trainerUsername("billy.herrington");
         Training training = buildTraining();
         Training createdTraining = Training.builder()
                 .id(TRAINING_ID)
@@ -83,6 +96,8 @@ class TrainingServiceImplTest {
                 .build();
 
         when(repository.save(training)).thenReturn(createdTraining);
+        when(repository.save(training)).thenReturn(createdTraining);
+        when(requestMapper.toRequest(createdTraining, ActionType.ADD)).thenReturn(workloadRequest);
 
         Training actual = service.createTraining(training);
 
@@ -95,6 +110,8 @@ class TrainingServiceImplTest {
         assertThat(listAppender.list)
                 .extracting(ILoggingEvent::getFormattedMessage, ILoggingEvent::getLevel)
                 .contains(tuple("Training created with id: " + TRAINING_ID, Level.INFO));
+        verify(requestMapper).toRequest(createdTraining, ActionType.ADD);
+        verify(eventPublisher).publishEvent(new WorkloadUpdateEvent(List.of(workloadRequest)));
     }
 
     @Test

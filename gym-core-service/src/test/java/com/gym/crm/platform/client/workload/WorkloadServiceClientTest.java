@@ -27,7 +27,6 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 })
 class WorkloadServiceClientTest {
 
-    private static final String BASE_URL = "http://localhost:8082/workload-service/api/v1";
     private static final String USERNAME = "billy.herrington";
     private static final String FIRST_NAME = "Billy";
     private static final String LAST_NAME = "Herrington";
@@ -48,7 +47,7 @@ class WorkloadServiceClientTest {
                 .trainingDate(LocalDate.of(2026, Month.JUNE, 10))
                 .trainingDuration(60)
                 .actionType(ActionType.ADD);
-        server.expect(requestTo(BASE_URL + "/trainer-workloads"))
+        server.expect(requestTo("/trainer-workloads"))
                 .andExpect(method(HttpMethod.PUT))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.trainerUsername").value(USERNAME))
