@@ -1,5 +1,6 @@
 package com.gym.crm.platform.client.workload;
 
+import com.gym.crm.platform.client.workload.model.TrainerWorkloadRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -15,12 +16,14 @@ public class WorkloadUpdateListener {
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handle(WorkloadUpdateEvent event) {
-        event.requests().forEach(request -> {
-            try {
-                clientService.updateTrainerWorkload(request);
-            } catch (Exception ex) {
-                log.error("Failed to update trainer workload for username={}", request.getTrainerUsername(), ex);
-            }
-        });
+        event.requests().forEach(this::updateTrainerWorkload);
+    }
+
+    private void updateTrainerWorkload(TrainerWorkloadRequest request){
+        try {
+            clientService.updateTrainerWorkload(request);
+        } catch (Exception ex) {
+            log.error("Failed to update trainer workload for username={}", request.getTrainerUsername(), ex);
+        }
     }
 }

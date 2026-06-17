@@ -58,7 +58,7 @@ class TrainingServiceImplTest {
     private WorkloadRequestMapper requestMapper;
 
     @Mock
-    private ApplicationEventPublisher eventPublisher;
+    private ApplicationEventPublisher publisher;
 
     @InjectMocks
     private TrainingServiceImpl service;
@@ -111,7 +111,7 @@ class TrainingServiceImplTest {
                 .extracting(ILoggingEvent::getFormattedMessage, ILoggingEvent::getLevel)
                 .contains(tuple("Training created with id: " + TRAINING_ID, Level.INFO));
         verify(requestMapper).toRequest(createdTraining, ActionType.ADD);
-        verify(eventPublisher).publishEvent(new WorkloadUpdateEvent(List.of(workloadRequest)));
+        verify(publisher).publishEvent(new WorkloadUpdateEvent(List.of(workloadRequest)));
     }
 
     @Test

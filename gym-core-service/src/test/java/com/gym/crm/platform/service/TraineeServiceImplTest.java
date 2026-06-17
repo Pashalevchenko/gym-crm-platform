@@ -30,6 +30,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
+import java.time.Month;
 import java.util.HashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -74,10 +75,10 @@ class TraineeServiceImplTest {
     private MetricsService metrics;
 
     @Mock
-    private WorkloadRequestMapper workloadRequestMapper;
+    private WorkloadRequestMapper requestMapper;
 
     @Mock
-    private ApplicationEventPublisher eventPublisher;
+    private ApplicationEventPublisher publisher;
 
     @InjectMocks
     private TraineeServiceImpl service;
@@ -279,7 +280,7 @@ class TraineeServiceImplTest {
                 .build();
         Training training = Training.builder()
                 .trainer(trainer)
-                .trainingDate(LocalDate.of(2026, 6, 10))
+                .trainingDate(LocalDate.of(2026, Month.JUNE, 10))
                 .trainingDuration(60)
                 .build();
         Trainee trainee = Trainee.builder()
@@ -290,14 +291,14 @@ class TraineeServiceImplTest {
                 .trainerUsername("trainer.user");
 
         when(repository.findByUserUsername(username)).thenReturn(Optional.of(trainee));
-        when(workloadRequestMapper.toRequest(training, ActionType.DELETE)).thenReturn(workloadRequest);
+        when(requestMapper.toRequest(training, ActionType.DELETE)).thenReturn(workloadRequest);
 
         service.deleteTraineeByUsername(username);
 
         verify(repository).findByUserUsername(username);
-        verify(workloadRequestMapper).toRequest(training, ActionType.DELETE);
+        verify(requestMapper).toRequest(training, ActionType.DELETE);
         verify(repository).deleteByUserUsername(username);
-        verify(eventPublisher).publishEvent(new WorkloadUpdateEvent(List.of(workloadRequest)));
+        verify(publisher).publishEvent(new WorkloadUpdateEvent(List.of(workloadRequest)));
     }
 
     @Test
