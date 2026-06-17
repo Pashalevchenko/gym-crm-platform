@@ -12,7 +12,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
 @RequiredArgsConstructor
 public class WorkloadUpdateListener {
 
-    private final WorkloadServiceClient clientService;
+    private final WorkloadServiceClient service;
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handle(WorkloadUpdateEvent event) {
@@ -21,7 +21,7 @@ public class WorkloadUpdateListener {
 
     private void updateTrainerWorkload(TrainerWorkloadRequest request){
         try {
-            clientService.updateTrainerWorkload(request);
+            service.updateTrainerWorkload(request);
         } catch (Exception ex) {
             log.error("Failed to update trainer workload for username={}", request.getTrainerUsername(), ex);
         }
