@@ -4,8 +4,13 @@ import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import com.gym.crm.platform.actuator.metrics.MetricsService;
+import com.gym.crm.platform.client.workload.WorkloadRequestMapper;
+import com.gym.crm.platform.client.workload.WorkloadUpdateEvent;
+import com.gym.crm.platform.client.workload.model.ActionType;
+import com.gym.crm.platform.client.workload.model.TrainerWorkloadRequest;
 import com.gym.crm.platform.entity.Trainee;
 import com.gym.crm.platform.entity.Trainer;
+import com.gym.crm.platform.entity.Training;
 import com.gym.crm.platform.entity.User;
 import com.gym.crm.platform.repository.TraineeRepository;
 import com.gym.crm.platform.repository.TrainerRepository;
@@ -21,9 +26,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
+import java.time.Month;
 import java.util.HashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -66,6 +73,12 @@ class TraineeServiceImplTest {
 
     @Mock
     private MetricsService metrics;
+
+    @Mock
+    private WorkloadRequestMapper requestMapper;
+
+    @Mock
+    private ApplicationEventPublisher publisher;
 
     @InjectMocks
     private TraineeServiceImpl service;
@@ -256,11 +269,36 @@ class TraineeServiceImplTest {
     @DisplayName("Should delete trainee by username")
     void deleteTraineeByUsername_shouldValidateUsernameAndDelete() {
         String username = "test.user";
+        User trainerUser = User.builder()
+                .username("trainer.user")
+                .firstName("Trainer")
+                .lastName("User")
+                .isActive(true)
+                .build();
+        Trainer trainer = Trainer.builder()
+                .user(trainerUser)
+                .build();
+        Training training = Training.builder()
+                .trainer(trainer)
+                .trainingDate(LocalDate.of(2026, Month.JUNE, 10))
+                .trainingDuration(60)
+                .build();
+        Trainee trainee = Trainee.builder()
+                .user(User.builder().username(username).build())
+                .trainings(Set.of(training))
+                .build();
+        TrainerWorkloadRequest workloadRequest = new TrainerWorkloadRequest()
+                .trainerUsername("trainer.user");
+
+        when(repository.findByUserUsername(username)).thenReturn(Optional.of(trainee));
+        when(requestMapper.toRequest(training, ActionType.DELETE)).thenReturn(workloadRequest);
 
         service.deleteTraineeByUsername(username);
 
-        verify(traineeValidator).validateUsername(username);
+        verify(repository).findByUserUsername(username);
+        verify(requestMapper).toRequest(training, ActionType.DELETE);
         verify(repository).deleteByUserUsername(username);
+        verify(publisher).publishEvent(new WorkloadUpdateEvent(List.of(workloadRequest)));
     }
 
     @Test

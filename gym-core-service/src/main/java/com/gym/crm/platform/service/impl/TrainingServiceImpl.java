@@ -1,12 +1,17 @@
 package com.gym.crm.platform.service.impl;
 
 import com.gym.crm.platform.actuator.metrics.MetricsService;
+import com.gym.crm.platform.client.workload.WorkloadRequestMapper;
+import com.gym.crm.platform.client.workload.WorkloadUpdateEvent;
+import com.gym.crm.platform.client.workload.model.ActionType;
+import com.gym.crm.platform.client.workload.model.TrainerWorkloadRequest;
 import com.gym.crm.platform.entity.Training;
 import com.gym.crm.platform.repository.TrainingRepository;
 import com.gym.crm.platform.service.TrainingService;
 import com.gym.crm.platform.validation.TrainingValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +26,8 @@ public class TrainingServiceImpl implements TrainingService {
     private final TrainingRepository repository;
     private final TrainingValidator validator;
     private final MetricsService metrics;
+    private final WorkloadRequestMapper requestMapper;
+    private final ApplicationEventPublisher publisher;
 
     @Transactional
     @Override
@@ -28,6 +35,9 @@ public class TrainingServiceImpl implements TrainingService {
         validator.validateForCreate(training);
 
         Training created = repository.save(training);
+
+        TrainerWorkloadRequest workloadRequest = requestMapper.toRequest(created, ActionType.ADD);
+        publisher.publishEvent(new WorkloadUpdateEvent(List.of(workloadRequest)));
 
         metrics.incrementTrainingCreated();
         log.info("Training created with id: {}", created.getId());
