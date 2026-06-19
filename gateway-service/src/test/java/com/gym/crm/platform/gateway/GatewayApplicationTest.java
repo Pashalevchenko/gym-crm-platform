@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 @SpringBootTest
 @ActiveProfiles("test")
-class ApiGatewayTest {
+class GatewayApplicationTest {
 
 
     @Test
@@ -17,6 +17,6 @@ class ApiGatewayTest {
 
     @Test
     void mainRuns() {
-        assertDoesNotThrow(() -> ApiGateway.main(new String[]{"--spring.profiles.active=test"}));
+        assertDoesNotThrow(() -> GatewayApplication.main(new String[]{"--spring.profiles.active=test"}));
     }
 }
