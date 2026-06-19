@@ -6,3 +6,10 @@ server:
   port: 8082
   servlet:
     context-path: /workload-service
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_SERVER_URL:}
+  instance:
+    prefer-ip-address: true
