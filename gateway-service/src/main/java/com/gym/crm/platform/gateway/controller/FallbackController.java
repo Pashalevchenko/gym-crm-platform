@@ -14,6 +14,12 @@ import java.net.URI;
 import java.time.Instant;
 import java.util.Set;
 
+import static org.springframework.web.bind.annotation.RequestMethod.DELETE;
+import static org.springframework.web.bind.annotation.RequestMethod.GET;
+import static org.springframework.web.bind.annotation.RequestMethod.PATCH;
+import static org.springframework.web.bind.annotation.RequestMethod.POST;
+import static org.springframework.web.bind.annotation.RequestMethod.PUT;
+
 @Slf4j
 @RestController
 @RequestMapping("/fallback")
@@ -21,7 +27,7 @@ public class FallbackController {
 
     private static final String ERROR_MESSAGE = "Service temporarily unavailable";
 
-    @RequestMapping("/{serviceName}")
+    @RequestMapping(value = "/{serviceName}", method = {GET, POST, PUT, PATCH, DELETE})
     public ResponseEntity<FallbackResponse> fallback(@PathVariable String serviceName, ServerWebExchange exchange) {
         Throwable exception = exchange.getAttribute(ServerWebExchangeUtils.CIRCUITBREAKER_EXECUTION_EXCEPTION_ATTR);
         Set<URI> originalUris = exchange.getAttribute(ServerWebExchangeUtils.GATEWAY_ORIGINAL_REQUEST_URL_ATTR);
