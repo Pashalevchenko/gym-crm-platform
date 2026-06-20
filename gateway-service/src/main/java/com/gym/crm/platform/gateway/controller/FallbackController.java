@@ -1,31 +1,40 @@
 package com.gym.crm.platform.gateway.controller;
 
+import com.gym.crm.platform.gateway.dto.FallbackResponse;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.cloud.gateway.support.ServerWebExchangeUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ServerWebExchange;
 
+import java.net.URI;
 import java.time.Instant;
-import java.util.Map;
+import java.util.Set;
 
+@Slf4j
 @RestController
+@RequestMapping("/fallback")
 public class FallbackController {
 
-    @GetMapping("/fallback/gym-core-service")
-    public ResponseEntity<Map<String, Object>> gymCoreFallback() {
-        return fallbackResponse("gym-core-service");
-    }
+    private static final String ERROR_MESSAGE = "Service temporarily unavailable";
 
-    @GetMapping("/fallback/workload-service")
-    public ResponseEntity<Map<String, Object>> workloadFallback() {
-        return fallbackResponse("workload-service");
-    }
+    @RequestMapping("/{serviceName}")
+    public ResponseEntity<FallbackResponse> fallback(@PathVariable String serviceName, ServerWebExchange exchange) {
+        Throwable exception = exchange.getAttribute(ServerWebExchangeUtils.CIRCUITBREAKER_EXECUTION_EXCEPTION_ATTR);
+        Set<URI> originalUris = exchange.getAttribute(ServerWebExchangeUtils.GATEWAY_ORIGINAL_REQUEST_URL_ATTR);
 
-    private ResponseEntity<Map<String, Object>> fallbackResponse(String serviceName) {
-        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
-                .body(Map.of("timestamp", Instant.now().toString(),
-                             "status", HttpStatus.SERVICE_UNAVAILABLE.value(),
-                             "error", "Service temporarily unavailable",
-                             "service", serviceName));
+        log.info("Circuit breaker fallback triggered for service={}, method={}, path={}, originalUris={}, reason={}",
+                 serviceName,
+                 exchange.getRequest().getMethod(),
+                 exchange.getRequest().getPath(),
+                 originalUris,
+                 exception == null ? "unknown" : exception.getMessage());
+
+        FallbackResponse response = new FallbackResponse(Instant.now(), HttpStatus.SERVICE_UNAVAILABLE.value(), ERROR_MESSAGE, serviceName);
+
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(response);
     }
 }
