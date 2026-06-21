@@ -3,8 +3,9 @@ package gym.crm.platform.workload.service;
 import gym.crm.platform.workload.openapi.ActionType;
 import gym.crm.platform.workload.openapi.TrainerWorkloadRequest;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 
 import java.time.LocalDate;
@@ -14,8 +15,8 @@ import java.util.NoSuchElementException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@SpringBootTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
+@ExtendWith(MockitoExtension.class)
 class TrainerWorkloadServiceTest {
 
     private static final String USERNAME = "billy.herrington";

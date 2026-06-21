@@ -20,8 +20,7 @@ public class RestClientConfig {
 
     private ClientHttpRequestInterceptor bearerTokenInterceptor(BearerTokenProvider bearerTokenProvider) {
         return (request, body, execution) -> {
-            bearerTokenProvider.getToken()
-                    .ifPresent(token -> request.getHeaders().setBearerAuth(token));
+            bearerTokenProvider.getToken().ifPresent(token -> request.getHeaders().setBearerAuth(token));
 
             return execution.execute(request, body);
         };
