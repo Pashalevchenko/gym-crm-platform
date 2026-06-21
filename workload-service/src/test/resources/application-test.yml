@@ -1,3 +1,6 @@
+jwt:
+  secret: test-secret-key-test-secret-key-123456
+
 eureka:
   client:
     enabled: false

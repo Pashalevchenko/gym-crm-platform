@@ -2,10 +2,12 @@ package gym.crm.platform.workload.service;
 
 import gym.crm.platform.workload.openapi.ActionType;
 import gym.crm.platform.workload.openapi.TrainerWorkloadRequest;
+import gym.crm.platform.workload.repository.TrainerWorkloadRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 
 import java.time.LocalDate;
@@ -25,7 +27,10 @@ class TrainerWorkloadServiceTest {
     private static final int YEAR = 2026;
     private static final int MONTH = 6;
 
-    @Autowired
+    @Mock
+    private TrainerWorkloadRepository repository;
+
+    @InjectMocks
     private TrainerWorkloadServiceImpl service;
 
     @Test
