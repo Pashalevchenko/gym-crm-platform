@@ -16,6 +16,6 @@ class WorkloadServiceTests {
 
     @Test
     void mainRuns() {
-        assertDoesNotThrow(() -> WorkloadService.main(new String[]{}));
+        assertDoesNotThrow(() -> WorkloadService.main(new String[]{"--spring.profiles.active=test"}));
     }
 }
