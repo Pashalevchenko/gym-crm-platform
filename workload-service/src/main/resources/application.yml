@@ -1,6 +1,10 @@
 spring:
   application:
     name: workload-service
+  data:
+    redis:
+      host: ${REDIS_HOST:}
+      port: ${REDIS_PORT:}
 
 server:
   port: 8082
@@ -13,3 +17,6 @@ eureka:
       defaultZone: ${EUREKA_SERVER_URL:}
   instance:
     prefer-ip-address: true
+
+jwt:
+  secret: ${JWT_SECRET:}
