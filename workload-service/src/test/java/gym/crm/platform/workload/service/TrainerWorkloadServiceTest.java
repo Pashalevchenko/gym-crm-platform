@@ -2,13 +2,11 @@ package gym.crm.platform.workload.service;
 
 import gym.crm.platform.workload.openapi.ActionType;
 import gym.crm.platform.workload.openapi.TrainerWorkloadRequest;
-import gym.crm.platform.workload.repository.TrainerWorkloadRepository;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDate;
 import java.time.Month;
@@ -17,8 +15,9 @@ import java.util.NoSuchElementException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+@SpringBootTest
+@ActiveProfiles("test")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
-@ExtendWith(MockitoExtension.class)
 class TrainerWorkloadServiceTest {
 
     private static final String USERNAME = "billy.herrington";
@@ -27,10 +26,7 @@ class TrainerWorkloadServiceTest {
     private static final int YEAR = 2026;
     private static final int MONTH = 6;
 
-    @Mock
-    private TrainerWorkloadRepository repository;
-
-    @InjectMocks
+    @Autowired
     private TrainerWorkloadServiceImpl service;
 
     @Test
