@@ -32,7 +32,7 @@ class JwtAuthenticationFilterTest {
     private JwtService jwtService;
 
     @Mock
-    private TokenBlacklistService tokenBlacklistService;
+    private TokenBlacklistService blacklistService;
 
     @Mock
     private MockFilterChain filterChain;
@@ -45,13 +45,13 @@ class JwtAuthenticationFilterTest {
     @Test
     @DisplayName("Should authenticate request when bearer token is valid")
     void doFilterInternal_whenBearerTokenIsValid_shouldAuthenticateRequest() throws ServletException, IOException {
-        JwtAuthenticationFilter filter = new JwtAuthenticationFilter(jwtService, tokenBlacklistService);
+        JwtAuthenticationFilter filter = new JwtAuthenticationFilter(jwtService, blacklistService);
         MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
         request.addHeader("Authorization", "Bearer " + TOKEN);
 
         when(jwtService.isTokenValid(TOKEN)).thenReturn(true);
-        when(tokenBlacklistService.isBlacklisted(TOKEN)).thenReturn(false);
+        when(blacklistService.isBlacklisted(TOKEN)).thenReturn(false);
         when(jwtService.extractUsername(TOKEN)).thenReturn(USERNAME);
 
         filter.doFilterInternal(request, response, filterChain);
@@ -60,33 +60,33 @@ class JwtAuthenticationFilterTest {
         assertThat(authentication.getPrincipal()).isEqualTo(USERNAME);
         assertThat(authentication.isAuthenticated()).isTrue();
         verify(jwtService).isTokenValid(TOKEN);
-        verify(tokenBlacklistService).isBlacklisted(TOKEN);
+        verify(blacklistService).isBlacklisted(TOKEN);
         verify(jwtService).extractUsername(TOKEN);
     }
 
     @Test
     @DisplayName("Should not authenticate request when token is blacklisted")
     void doFilterInternal_whenTokenIsBlacklisted_shouldNotAuthenticateRequest() throws ServletException, IOException {
-        JwtAuthenticationFilter filter = new JwtAuthenticationFilter(jwtService, tokenBlacklistService);
+        JwtAuthenticationFilter filter = new JwtAuthenticationFilter(jwtService, blacklistService);
         MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
         request.addHeader("Authorization", "Bearer " + TOKEN);
 
         when(jwtService.isTokenValid(TOKEN)).thenReturn(true);
-        when(tokenBlacklistService.isBlacklisted(TOKEN)).thenReturn(true);
+        when(blacklistService.isBlacklisted(TOKEN)).thenReturn(true);
 
         filter.doFilterInternal(request, response, filterChain);
 
         assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
         verify(jwtService).isTokenValid(TOKEN);
-        verify(tokenBlacklistService).isBlacklisted(TOKEN);
+        verify(blacklistService).isBlacklisted(TOKEN);
         verify(jwtService, never()).extractUsername(TOKEN);
     }
 
     @Test
     @DisplayName("Should continue filter chain when authorization header is missing")
     void doFilterInternal_whenAuthorizationHeaderIsMissing_shouldNotAuthenticateRequest() throws ServletException, IOException {
-        JwtAuthenticationFilter filter = new JwtAuthenticationFilter(jwtService, tokenBlacklistService);
+        JwtAuthenticationFilter filter = new JwtAuthenticationFilter(jwtService, blacklistService);
         MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
 
@@ -95,6 +95,6 @@ class JwtAuthenticationFilterTest {
         assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
         verify(jwtService, never()).isTokenValid(any());
         verify(jwtService, never()).extractUsername(any());
-        verify(tokenBlacklistService, never()).isBlacklisted(any());
+        verify(blacklistService, never()).isBlacklisted(any());
     }
 }

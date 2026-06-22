@@ -49,7 +49,7 @@ class TrainerWorkloadControllerTest {
     private JwtService jwtService;
 
     @MockitoBean
-    private TokenBlacklistService tokenBlacklistService;
+    private TokenBlacklistService blacklistService;
 
     @Test
     void updateTrainerWorkload_shouldReturnOk() throws Exception {

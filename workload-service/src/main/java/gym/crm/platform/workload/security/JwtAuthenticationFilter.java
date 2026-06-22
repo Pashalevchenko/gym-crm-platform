@@ -21,7 +21,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private static final String BEARER_PREFIX = "Bearer ";
 
     private final JwtService jwtService;
-    private final TokenBlacklistService tokenBlacklistService;
+    private final TokenBlacklistService blacklistService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -52,7 +52,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private boolean shouldAuthenticate(String token) {
         boolean isNotAuthenticatedYet = SecurityContextHolder.getContext().getAuthentication() == null;
 
-        return isNotAuthenticatedYet && jwtService.isTokenValid(token) && !tokenBlacklistService.isBlacklisted(token);
+        return isNotAuthenticatedYet && jwtService.isTokenValid(token) && !blacklistService.isBlacklisted(token);
     }
 
     private UsernamePasswordAuthenticationToken buildAuthentication(String username) {
