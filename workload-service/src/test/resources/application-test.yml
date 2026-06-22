@@ -1,0 +1,12 @@
+spring:
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+jwt:
+  secret: test-secret-key-test-secret-key-123456
+
+eureka:
+  client:
+    enabled: false

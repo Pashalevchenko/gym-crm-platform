@@ -3,14 +3,17 @@ package gym.crm.platform.workload.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import gym.crm.platform.workload.openapi.ActionType;
 import gym.crm.platform.workload.openapi.TrainerWorkloadRequest;
+import gym.crm.platform.workload.security.JwtService;
+import gym.crm.platform.workload.security.TokenBlacklistService;
 import gym.crm.platform.workload.service.TrainerWorkloadServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-
 import java.time.LocalDate;
 
 import static org.mockito.Mockito.verify;
@@ -21,6 +24,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(TrainerWorkloadController.class)
+@AutoConfigureMockMvc(addFilters = false)
+@ActiveProfiles("test")
 class TrainerWorkloadControllerTest {
 
     private static final String BASE_URL = "/api/v1/trainer-workloads";
@@ -39,6 +44,12 @@ class TrainerWorkloadControllerTest {
 
     @MockitoBean
     private TrainerWorkloadServiceImpl trainerWorkloadService;
+
+    @MockitoBean
+    private JwtService jwtService;
+
+    @MockitoBean
+    private TokenBlacklistService blacklistService;
 
     @Test
     void updateTrainerWorkload_shouldReturnOk() throws Exception {

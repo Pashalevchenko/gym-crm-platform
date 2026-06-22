@@ -41,7 +41,7 @@ public class SecurityConfig {
             "/swagger-ui.html"
     };
 
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final JwtAuthenticationFilter filter;
 
     @Value("${app.cors.allowed-origins}")
     private String allowedOrigins;
@@ -59,7 +59,7 @@ public class SecurityConfig {
                                 TRAINER_REGISTER_ENDPOINT,
                                 LOGINUSER).permitAll()
                         .anyRequest().authenticated())
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 
