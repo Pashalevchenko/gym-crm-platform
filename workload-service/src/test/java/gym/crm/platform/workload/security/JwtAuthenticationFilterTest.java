@@ -35,7 +35,7 @@ class JwtAuthenticationFilterTest {
     private TokenBlacklistService tokenBlacklistService;
 
     @Mock
-    MockFilterChain filterChain;
+    private MockFilterChain filterChain;
 
     @AfterEach
     void tearDown() {
