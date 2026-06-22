@@ -47,7 +47,7 @@ class TrainerWorkloadControllerTest {
     private ObjectMapper mapper;
 
     @MockitoBean
-    private TrainerWorkloadServiceImpl trainerWorkloadService;
+    private TrainerWorkloadServiceImpl blacklistService;
 
     @MockitoBean
     private JwtService jwtService;
@@ -71,12 +71,12 @@ class TrainerWorkloadControllerTest {
                         .content(mapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
 
-        verify(trainerWorkloadService).updateTrainerWorkload(request);
+        verify(blacklistService).updateTrainerWorkload(request);
     }
 
     @Test
     void getTrainerMonthlyWorkload_shouldReturnOk() throws Exception {
-        when(trainerWorkloadService.getMonthlyWorkload(USERNAME, YEAR, MONTH)).thenReturn(DURATION);
+        when(blacklistService.getMonthlyWorkload(USERNAME, YEAR, MONTH)).thenReturn(DURATION);
 
         mockMvc.perform(get(BASE_URL + "/" + USERNAME)
                         .param("year", String.valueOf(YEAR))
@@ -84,7 +84,7 @@ class TrainerWorkloadControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string(String.valueOf(DURATION)));
 
-        verify(trainerWorkloadService).getMonthlyWorkload(USERNAME, YEAR, MONTH);
+        verify(blacklistService).getMonthlyWorkload(USERNAME, YEAR, MONTH);
     }
 
     @Test
@@ -109,7 +109,7 @@ class TrainerWorkloadControllerTest {
     @Test
     void getTrainerMonthlyWorkload_whenTrainerNotFound_shouldReturnNotFoundWithErrorBody() throws Exception {
         String errorMessage = "Trainer workload not found: " + USERNAME;
-        when(trainerWorkloadService.getMonthlyWorkload(USERNAME, YEAR, MONTH))
+        when(blacklistService.getMonthlyWorkload(USERNAME, YEAR, MONTH))
                 .thenThrow(new NoSuchElementException(errorMessage));
 
         mockMvc.perform(get(BASE_URL + "/" + USERNAME)
@@ -119,6 +119,6 @@ class TrainerWorkloadControllerTest {
                 .andExpect(jsonPath("$.errorCode").value(NOT_FOUND_ERROR_CODE))
                 .andExpect(jsonPath("$.errorMessage").value("Requested data was not found: " + errorMessage));
 
-        verify(trainerWorkloadService).getMonthlyWorkload(USERNAME, YEAR, MONTH);
+        verify(blacklistService).getMonthlyWorkload(USERNAME, YEAR, MONTH);
     }
 }

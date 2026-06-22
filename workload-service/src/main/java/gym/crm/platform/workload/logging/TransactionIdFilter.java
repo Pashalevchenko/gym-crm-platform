@@ -10,7 +10,9 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import java.io.Closeable;
 import java.io.IOException;
+import java.util.Optional;
 import java.util.UUID;
 
 @Component
@@ -24,17 +26,14 @@ public class TransactionIdFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String transactionId = request.getHeader(TRANSACTION_ID_HEADER);
 
-        if (transactionId == null || transactionId.isBlank()) {
-            transactionId = UUID.randomUUID().toString();
-        }
-
-        MDC.put(TRANSACTION_ID, transactionId);
+        transactionId = Optional.ofNullable(transactionId)
+                .filter(value -> !value.isBlank())
+                .orElseGet(() -> UUID.randomUUID().toString());
         response.setHeader(TRANSACTION_ID_HEADER, transactionId);
 
-        try {
+        try (Closeable ignored = MDC.putCloseable(TRANSACTION_ID, transactionId)) {
             filterChain.doFilter(request, response);
-        } finally {
-            MDC.remove(TRANSACTION_ID);
         }
+
     }
 }

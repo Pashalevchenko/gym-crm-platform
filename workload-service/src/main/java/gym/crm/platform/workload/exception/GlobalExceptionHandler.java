@@ -23,63 +23,69 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleMethodArgumentNotValid(MethodArgumentNotValidException exception) {
-        String details = exception.getBindingResult()
-                .getFieldErrors()
-                .stream()
-                .map(error -> String.format("%s %s", error.getField(), error.getDefaultMessage()))
-                .collect(Collectors.joining(", "));
-        String message = buildMessage(VALIDATION_ERROR, details);
+        String message = validationMessage(exception);
 
         log.warn("Method argument validation failed: {}", message);
-        return buildResponse(VALIDATION_ERROR, message);
+        return error(VALIDATION_ERROR, message);
     }
 
     @ExceptionHandler(HandlerMethodValidationException.class)
     public ResponseEntity<ErrorResponse> handleHandlerMethodValidation(HandlerMethodValidationException exception) {
-        String message = buildMessage(VALIDATION_ERROR, exception.getMessage());
+        String message = messageWithDetails(VALIDATION_ERROR, exception.getMessage());
 
         log.warn("Validation failed: {}", message);
-        return buildResponse(VALIDATION_ERROR, message);
+        return error(VALIDATION_ERROR, message);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException exception) {
-        String message = buildMessage(VALIDATION_ERROR, exception.getMessage());
+        String message = messageWithDetails(VALIDATION_ERROR, exception.getMessage());
 
         log.warn("Illegal argument exception occurred: {}", message);
-        return buildResponse(VALIDATION_ERROR, message);
+        return error(VALIDATION_ERROR, message);
     }
 
     @ExceptionHandler(NoSuchElementException.class)
     public ResponseEntity<ErrorResponse> handleNotFound(NoSuchElementException exception) {
-        String message = buildMessage(NOT_FOUND_ERROR, exception.getMessage());
+        String message = messageWithDetails(NOT_FOUND_ERROR, exception.getMessage());
 
         log.warn("Requested resource was not found: {}", exception.getMessage(), exception);
-        return buildResponse(NOT_FOUND_ERROR, message);
+        return error(NOT_FOUND_ERROR, message);
     }
 
     @ExceptionHandler(DataAccessException.class)
     public ResponseEntity<ErrorResponse> handleDataAccessException(DataAccessException exception) {
-        String message = buildMessage(DATABASE_ERROR, exception.getMessage());
+        String message = messageWithDetails(DATABASE_ERROR, exception.getMessage());
 
         log.error("Spring data access fail: {}", exception.getMessage(), exception);
-        return buildResponse(DATABASE_ERROR, message);
+        return error(DATABASE_ERROR, message);
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGenericException(Exception exception) {
         log.error("Unexpected application error occurred", exception);
 
-        return buildResponse(SERVICE_ERROR, SERVICE_ERROR.getMessage());
+        return error(SERVICE_ERROR, SERVICE_ERROR.getMessage());
     }
 
-    private String buildMessage(ApiErrorCode apiErrorCode, String exceptionMessage) {
-        return String.format("%s: %s", apiErrorCode.getMessage(), exceptionMessage);
+    private String validationMessage(MethodArgumentNotValidException exception) {
+        String fields = exception.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .map(error -> String.format("%s %s", error.getField(), error.getDefaultMessage()))
+                .collect(Collectors.joining(", "));
+
+        return messageWithDetails(VALIDATION_ERROR, fields);
     }
 
-    private ResponseEntity<ErrorResponse> buildResponse(ApiErrorCode errorCode, String message) {
-        ErrorResponse response = new ErrorResponse().errorCode(errorCode.getCode()).errorMessage(message);
+    private String messageWithDetails(ApiErrorCode apiErrorCode, String details) {
+        return String.join(": ", apiErrorCode.getMessage(), details);
+    }
 
-        return ResponseEntity.status(errorCode.getStatus()).body(response);
+    private ResponseEntity<ErrorResponse> error(ApiErrorCode apiErrorCode, String message) {
+        return ResponseEntity.status(apiErrorCode.getStatus())
+                .body(new ErrorResponse()
+                        .errorCode(apiErrorCode.getCode())
+                        .errorMessage(message));
     }
 }
