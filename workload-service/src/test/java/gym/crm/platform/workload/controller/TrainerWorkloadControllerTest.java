@@ -37,8 +37,8 @@ class TrainerWorkloadControllerTest {
     private static final int YEAR = 2026;
     private static final int MONTH = 6;
     private static final int DURATION = 60;
-    private static final int VALIDATION_ERROR_CODE = 4001;
-    private static final int NOT_FOUND_ERROR_CODE = 4041;
+    private static final int VALIDATION_ERROR_CODE = 2760;
+    private static final int NOT_FOUND_ERROR_CODE = 2835;
 
     @Autowired
     private MockMvc mockMvc;
@@ -103,7 +103,7 @@ class TrainerWorkloadControllerTest {
                         .content(mapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errorCode").value(VALIDATION_ERROR_CODE))
-                .andExpect(jsonPath("$.errorMessage").value(containsString("trainingDuration")));
+                .andExpect(jsonPath("$.errorMessage").value(containsString("Validation error: trainingDuration")));
     }
 
     @Test
@@ -117,7 +117,7 @@ class TrainerWorkloadControllerTest {
                         .param("month", String.valueOf(MONTH)))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.errorCode").value(NOT_FOUND_ERROR_CODE))
-                .andExpect(jsonPath("$.errorMessage").value(errorMessage));
+                .andExpect(jsonPath("$.errorMessage").value("Requested data was not found: " + errorMessage));
 
         verify(trainerWorkloadService).getMonthlyWorkload(USERNAME, YEAR, MONTH);
     }
