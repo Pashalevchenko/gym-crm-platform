@@ -21,6 +21,7 @@ import static com.gym.crm.platform.exception.ApiErrorCode.NOT_FOUND_ERROR;
 import static com.gym.crm.platform.exception.ApiErrorCode.SERVICE_ERROR;
 import static com.gym.crm.platform.exception.ApiErrorCode.USER_BLOCKED_ERROR;
 import static com.gym.crm.platform.exception.ApiErrorCode.VALIDATION_ERROR;
+import static com.gym.crm.platform.exception.ApiErrorCode.MISSING_REQUEST_DATA_ERROR;
 
 @Slf4j
 @RestControllerAdvice
@@ -61,6 +62,13 @@ public class GlobalExceptionHandler {
 
         log.warn("Requested resource was not found: {}", exception.getMessage(), exception);
         return buildResponse(NOT_FOUND_ERROR, message);
+    }
+
+    @ExceptionHandler(NullPointerException.class)
+    public ResponseEntity<ErrorResponse> handleNullPointerException(NullPointerException exception) {
+        log.warn("Required request data is missing", exception);
+
+        return buildResponse(VALIDATION_ERROR, MISSING_REQUEST_DATA_ERROR.getMessage());
     }
 
     @ExceptionHandler(AuthorizationException.class)
