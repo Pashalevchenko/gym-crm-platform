@@ -11,21 +11,23 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import java.time.LocalDate;
 
+import java.time.LocalDate;
+import java.util.NoSuchElementException;
+
+import static org.hamcrest.Matchers.containsString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(TrainerWorkloadController.class)
 @AutoConfigureMockMvc(addFilters = false)
-@ActiveProfiles("test")
 class TrainerWorkloadControllerTest {
 
     private static final String BASE_URL = "/api/v1/trainer-workloads";
@@ -35,6 +37,8 @@ class TrainerWorkloadControllerTest {
     private static final int YEAR = 2026;
     private static final int MONTH = 6;
     private static final int DURATION = 60;
+    private static final int VALIDATION_ERROR_CODE = 2760;
+    private static final int NOT_FOUND_ERROR_CODE = 2835;
 
     @Autowired
     private MockMvc mockMvc;
@@ -43,7 +47,7 @@ class TrainerWorkloadControllerTest {
     private ObjectMapper mapper;
 
     @MockitoBean
-    private TrainerWorkloadServiceImpl trainerWorkloadService;
+    private TrainerWorkloadServiceImpl workloadService;
 
     @MockitoBean
     private JwtService jwtService;
@@ -67,12 +71,12 @@ class TrainerWorkloadControllerTest {
                         .content(mapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
 
-        verify(trainerWorkloadService).updateTrainerWorkload(request);
+        verify(workloadService).updateTrainerWorkload(request);
     }
 
     @Test
     void getTrainerMonthlyWorkload_shouldReturnOk() throws Exception {
-        when(trainerWorkloadService.getMonthlyWorkload(USERNAME, YEAR, MONTH)).thenReturn(DURATION);
+        when(workloadService.getMonthlyWorkload(USERNAME, YEAR, MONTH)).thenReturn(DURATION);
 
         mockMvc.perform(get(BASE_URL + "/" + USERNAME)
                         .param("year", String.valueOf(YEAR))
@@ -80,6 +84,41 @@ class TrainerWorkloadControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string(String.valueOf(DURATION)));
 
-        verify(trainerWorkloadService).getMonthlyWorkload(USERNAME, YEAR, MONTH);
+        verify(workloadService).getMonthlyWorkload(USERNAME, YEAR, MONTH);
+    }
+
+    @Test
+    void updateTrainerWorkload_whenRequestIsInvalid_shouldReturnBadRequestWithErrorBody() throws Exception {
+        TrainerWorkloadRequest request = new TrainerWorkloadRequest()
+                .trainerUsername(USERNAME)
+                .trainerFirstName(FIRST_NAME)
+                .trainerLastName(LAST_NAME)
+                .isActive(true)
+                .trainingDate(LocalDate.of(YEAR, MONTH, 10))
+                .trainingDuration(0)
+                .actionType(ActionType.ADD);
+
+        mockMvc.perform(put(BASE_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errorCode").value(VALIDATION_ERROR_CODE))
+                .andExpect(jsonPath("$.errorMessage").value(containsString("Validation error: trainingDuration")));
+    }
+
+    @Test
+    void getTrainerMonthlyWorkload_whenTrainerNotFound_shouldReturnNotFoundWithErrorBody() throws Exception {
+        String errorMessage = "Trainer workload not found: " + USERNAME;
+        when(workloadService.getMonthlyWorkload(USERNAME, YEAR, MONTH))
+                .thenThrow(new NoSuchElementException(errorMessage));
+
+        mockMvc.perform(get(BASE_URL + "/" + USERNAME)
+                        .param("year", String.valueOf(YEAR))
+                        .param("month", String.valueOf(MONTH)))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.errorCode").value(NOT_FOUND_ERROR_CODE))
+                .andExpect(jsonPath("$.errorMessage").value("Requested data was not found: " + errorMessage));
+
+        verify(workloadService).getMonthlyWorkload(USERNAME, YEAR, MONTH);
     }
 }

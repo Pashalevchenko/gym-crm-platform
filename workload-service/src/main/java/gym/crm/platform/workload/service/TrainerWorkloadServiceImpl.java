@@ -37,15 +37,25 @@ public class TrainerWorkloadServiceImpl implements TrainerWorkloadService {
     }
 
     public int getMonthlyWorkload(String username, int year, int month) {
+        log.info("Getting trainer monthly workload. username={}, year={}, month={}", username, year, month);
+
         TrainerWorkload workload = findWorkload(username);
 
-        return workload.getYears().stream()
+        int monthlyWorkload = workload.getYears().stream()
                 .filter(summary -> summary.getYear().equals(year))
                 .flatMap(summary -> summary.getMonths().stream())
                 .filter(summary -> summary.getMonth().equals(month))
                 .mapToInt(MonthSummary::getTrainingSummaryDuration)
                 .findFirst()
                 .orElse(0);
+
+        log.info("Trainer monthly workload found. username={}, year={}, month={}, duration={}",
+                username,
+                year,
+                month,
+                monthlyWorkload);
+
+        return monthlyWorkload;
     }
 
     private TrainerWorkload findWorkload(String username) {
