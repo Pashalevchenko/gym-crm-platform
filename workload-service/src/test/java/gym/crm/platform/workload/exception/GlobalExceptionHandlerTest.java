@@ -97,7 +97,6 @@ class GlobalExceptionHandlerTest {
         assertEquals("Required request data is missing", response.getBody().getErrorMessage());
     }
 
-
     @Test
     @DisplayName("Should handle data access exception as database error")
     void handleDataAccessException_shouldReturnDatabaseError() {
