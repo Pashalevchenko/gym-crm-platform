@@ -123,6 +123,13 @@ public class GlobalExceptionHandler {
         return buildResponse(USER_BLOCKED_ERROR, exception.getMessage());
     }
 
+    @ExceptionHandler(WorkloadServiceUnavailableException.class)
+    public ResponseEntity<ErrorResponse> handleWorkloadServiceUnavailable(WorkloadServiceUnavailableException exception) {
+        log.error("Workload service call failed", exception);
+
+        return buildResponse(SERVICE_ERROR, "workload-service is temporarily unavailable");
+    }
+
     private String buildMessage(ApiErrorCode apiErrorCode, String exceptionMessage) {
         return String.format("%s: %s", apiErrorCode.getMessage(), exceptionMessage);
     }

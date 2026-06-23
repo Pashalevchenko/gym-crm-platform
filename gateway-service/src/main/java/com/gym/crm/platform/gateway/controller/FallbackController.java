@@ -10,9 +10,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ServerWebExchange;
 
+import java.net.ConnectException;
 import java.net.URI;
 import java.time.Instant;
 import java.util.Set;
+import java.util.concurrent.TimeoutException;
 
 import static org.springframework.web.bind.annotation.RequestMethod.DELETE;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
@@ -26,6 +28,8 @@ import static org.springframework.web.bind.annotation.RequestMethod.PUT;
 public class FallbackController {
 
     private static final String ERROR_MESSAGE = "Service temporarily unavailable";
+    private static final String TIMEOUT_MESSAGE = "TimeOut: %s did not respond within 3s";
+    private static final String CONNECTION_MESSAGE = "Connection error: Cannot connect to %s";
 
     @RequestMapping(value = "/{serviceName}", method = {GET, POST, PUT, PATCH, DELETE})
     public ResponseEntity<FallbackResponse> fallback(@PathVariable String serviceName, ServerWebExchange exchange) {
@@ -39,8 +43,36 @@ public class FallbackController {
                  originalUris,
                  exception == null ? "unknown" : exception.getMessage());
 
-        FallbackResponse response = new FallbackResponse(Instant.now(), HttpStatus.SERVICE_UNAVAILABLE.value(), ERROR_MESSAGE, serviceName);
+        FallbackDetails details = resolveFallbackDetails(serviceName, exception);
+
+        FallbackResponse response = new FallbackResponse(Instant.now(), details.status().value(), details.message(), serviceName);
 
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(response);
+    }
+
+    private FallbackDetails resolveFallbackDetails(String serviceName, Throwable exception) {
+        if (hasCause(exception, TimeoutException.class)) {
+            return new FallbackDetails(HttpStatus.GATEWAY_TIMEOUT, String.format(TIMEOUT_MESSAGE, serviceName));
+        }
+
+        if (hasCause(exception, ConnectException.class)) {
+            return new FallbackDetails(HttpStatus.SERVICE_UNAVAILABLE, String.format(CONNECTION_MESSAGE, serviceName));
+        }
+
+        return new FallbackDetails(HttpStatus.SERVICE_UNAVAILABLE, ERROR_MESSAGE);
+    }
+
+    private boolean hasCause(Throwable exception, Class<? extends Throwable> expectedType) {
+        Throwable current = exception;
+
+        while (current != null) {
+            if (expectedType.isInstance(current)) {
+                return true;
+            }
+
+            current = current.getCause();
+        }
+
+        return false;
     }
 }
