@@ -188,4 +188,18 @@ class GlobalExceptionHandlerTest {
         assertEquals(2760, response.getBody().getErrorCode());
         assertEquals("Validation error: Validation failed for argument", response.getBody().getErrorMessage());
     }
+
+    @Test
+    @DisplayName("Should handle workload service unavailable exception")
+    void handleWorkloadServiceUnavailable_shouldReturnServiceError() {
+        WorkloadServiceUnavailableException exception =
+                new WorkloadServiceUnavailableException("workload-service is temporarily unavailable", new RuntimeException("Connection refused"));
+
+        ResponseEntity<ErrorResponse> response = handler.handleWorkloadServiceUnavailable(exception);
+
+        assertEquals(500, response.getStatusCode().value());
+        assertNotNull(response.getBody());
+        assertEquals(3200, response.getBody().getErrorCode());
+        assertEquals("workload-service is temporarily unavailable", response.getBody().getErrorMessage());
+    }
 }
