@@ -16,6 +16,7 @@ import static gym.crm.platform.workload.exception.ApiErrorCode.DATABASE_ERROR;
 import static gym.crm.platform.workload.exception.ApiErrorCode.NOT_FOUND_ERROR;
 import static gym.crm.platform.workload.exception.ApiErrorCode.SERVICE_ERROR;
 import static gym.crm.platform.workload.exception.ApiErrorCode.VALIDATION_ERROR;
+import static gym.crm.platform.workload.exception.ApiErrorCode.MISSING_REQUEST_DATA_ERROR;
 
 @Slf4j
 @RestControllerAdvice
@@ -51,6 +52,13 @@ public class GlobalExceptionHandler {
 
         log.warn("Requested resource was not found: {}", exception.getMessage(), exception);
         return error(NOT_FOUND_ERROR, message);
+    }
+
+    @ExceptionHandler(NullPointerException.class)
+    public ResponseEntity<ErrorResponse> handleNullPointerException(NullPointerException exception) {
+        log.warn("Required request data is missing", exception);
+
+        return error(VALIDATION_ERROR, MISSING_REQUEST_DATA_ERROR.getMessage());
     }
 
     @ExceptionHandler(DataAccessException.class)

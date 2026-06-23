@@ -49,7 +49,10 @@ mvn test
 ## 6. Run the application from console
 
 ```bash
-mvn spring-boot:run
+mvn -pl discovery-server spring-boot:run
+mvn -pl workload-service spring-boot:run
+mvn -pl gym-core-service spring-boot:run -Dspring-boot.run.profiles=local
+mvn -pl api-gateway spring-boot:run -Dspring-boot.run.profiles=local
 ```
 
 If you want to run with a specific Spring profile, use:
@@ -61,10 +64,23 @@ mvn spring-boot:run -Dspring-boot.run.profiles=dev
 After startup, the application will be available at:
 
 ```text
-http://localhost:8080/gym-crm-application
+discovery-server   http://localhost:8761
+gateway-service    http://localhost:8080
+gym-core-service   http://localhost:8081/gym-crm-application
+workload-service   http://localhost:8082/workload-service
 ```
 
+Gateway routes:
+```text
+/gym-crm-application/**      -> gym-core-service
+/workload-service/**         -> workload-service
+```
 
+Swagger contracts
+```text
+gym-core-service   http://localhost:8081/gym-crm-application/swagger-ui.html
+workload-service   http://localhost:8082/workload-service/swagger-ui.html
+```
 ## 7.  Actuator endpoints
 
 The application exposes Spring Boot Actuator endpoints for health checks and Prometheus metrics.
