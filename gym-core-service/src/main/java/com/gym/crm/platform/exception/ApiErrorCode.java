@@ -7,7 +7,6 @@ import org.springframework.http.HttpStatus;
 public enum ApiErrorCode {
 
     VALIDATION_ERROR(2760, HttpStatus.BAD_REQUEST, "Validation error"),
-    MISSING_REQUEST_DATA_ERROR(2761, HttpStatus.BAD_REQUEST, "Required request data is missing"),
     AUTHENTICATION_ERROR(2805, HttpStatus.UNAUTHORIZED, "Authentication fails"),
     AUTHORIZATION_ERROR(2806, HttpStatus.UNAUTHORIZED, "User is not authorized for request operation"),
     NOT_FOUND_ERROR(2835, HttpStatus.NOT_FOUND, "Requested data was not found"),

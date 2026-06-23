@@ -7,7 +7,6 @@ import org.springframework.http.HttpStatus;
 public enum ApiErrorCode {
 
     VALIDATION_ERROR(2760, HttpStatus.BAD_REQUEST, "Validation error"),
-    MISSING_REQUEST_DATA_ERROR(2761, HttpStatus.BAD_REQUEST, "Required request data is missing"),
     NOT_FOUND_ERROR(2835, HttpStatus.NOT_FOUND, "Requested data was not found"),
     SERVICE_ERROR(3200, HttpStatus.INTERNAL_SERVER_ERROR, "Internal processing error"),
     DATABASE_ERROR(3358, HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected database access failure");
