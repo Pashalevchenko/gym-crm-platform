@@ -65,14 +65,13 @@ After startup, the application will be available at:
 
 ```text
 discovery-server   http://localhost:8761
-api-gateway        http://localhost:8080
+gateway-service    http://localhost:8080
 gym-core-service   http://localhost:8081/gym-crm-application
 workload-service   http://localhost:8082/workload-service
 ```
 
 Gateway routes:
 ```text
-/auth-service/**             -> auth-service
 /gym-crm-application/**      -> gym-core-service
 /workload-service/**         -> workload-service
 ```
