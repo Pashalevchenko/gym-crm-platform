@@ -41,7 +41,7 @@ class FallbackControllerTest {
     }
 
     @Test
-    void fallback_whenCalledWithPut_shouldReturnServiceUnavailable() {
+    void gymCoreFallback_shouldReturnServiceUnavailable() {
         webTestClient.put()
                 .uri("/fallback/workload-service")
                 .exchange()

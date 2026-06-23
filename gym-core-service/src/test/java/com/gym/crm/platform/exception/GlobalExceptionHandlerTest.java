@@ -149,6 +149,19 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
+    @DisplayName("Should handle null pointer exception as validation error")
+    void handleNullPointerException_shouldReturnValidationError() {
+        NullPointerException exception = new NullPointerException("Cannot invoke field");
+
+        ResponseEntity<ErrorResponse> response = handler.handleNullPointerException(exception);
+
+        assertEquals(400, response.getStatusCode().value());
+        assertNotNull(response.getBody());
+        assertEquals(2760, response.getBody().getErrorCode());
+        assertEquals("Required request data is missing", response.getBody().getErrorMessage());
+    }
+
+    @Test
     @DisplayName("Should handle user blocked exception")
     void handleUserBlocked_shouldReturnUserBlockedError() {
         UserBlockedException exception = new UserBlockedException("User is temporarily blocked");
