@@ -13,6 +13,7 @@ Java 21
 Maven
 PostgreSQL
 Redis
+ActiveMQ
 ```
 
 ## 2. Clone the project
