@@ -81,6 +81,11 @@ Swagger contracts
 gym-core-service   http://localhost:8081/gym-crm-application/swagger-ui.html
 workload-service   http://localhost:8082/workload-service/swagger-ui.html
 ```
+
+ActiveMQ
+```text
+ActiveMQ Web Console -> http://localhost:8161
+```
 ## 7.  Actuator endpoints
 
 The application exposes Spring Boot Actuator endpoints for health checks and Prometheus metrics.
