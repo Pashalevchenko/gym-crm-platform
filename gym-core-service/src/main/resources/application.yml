@@ -16,6 +16,10 @@ spring:
     redis:
       host: ${REDIS_HOST}
       port: 6379
+  activemq:
+    broker-url: ${ACTIVEMQ_BROKER_URL:}
+    user: ${ACTIVEMQ_USER:}
+    password: ${ACTIVEMQ_PASSWORD:}
 
 app:
   api:
@@ -26,6 +30,9 @@ app:
 workload:
   service:
     base-url: ${WORKLOAD_SERVICE_URL:}
+  messaging:
+    queue:
+      trainer-workload: ${TRAINER_WORKLOAD_QUEUE:}
 
 server:
   port: 8081

@@ -4,10 +4,10 @@ import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import com.gym.crm.platform.actuator.metrics.MetricsService;
-import com.gym.crm.platform.client.workload.WorkloadRequestMapper;
-import com.gym.crm.platform.client.workload.WorkloadUpdateEvent;
-import com.gym.crm.platform.client.workload.model.ActionType;
-import com.gym.crm.platform.client.workload.model.TrainerWorkloadRequest;
+import com.gym.crm.platform.messaging.workload.ActionType;
+import com.gym.crm.platform.messaging.workload.TrainerWorkloadMessage;
+import com.gym.crm.platform.messaging.workload.WorkloadMessageMapper;
+import com.gym.crm.platform.messaging.workload.WorkloadUpdateEvent;
 import com.gym.crm.platform.entity.Trainee;
 import com.gym.crm.platform.entity.Trainer;
 import com.gym.crm.platform.entity.Training;
@@ -75,7 +75,7 @@ class TraineeServiceImplTest {
     private MetricsService metrics;
 
     @Mock
-    private WorkloadRequestMapper requestMapper;
+    private WorkloadMessageMapper messageMapper;
 
     @Mock
     private ApplicationEventPublisher publisher;
@@ -287,18 +287,17 @@ class TraineeServiceImplTest {
                 .user(User.builder().username(username).build())
                 .trainings(Set.of(training))
                 .build();
-        TrainerWorkloadRequest workloadRequest = new TrainerWorkloadRequest()
-                .trainerUsername("trainer.user");
+        TrainerWorkloadMessage workloadMessage = new TrainerWorkloadMessage("trainer.user", "Trainer", "User", true, LocalDate.of(2026, Month.JUNE, 10), 60, ActionType.DELETE);
 
         when(repository.findByUserUsername(username)).thenReturn(Optional.of(trainee));
-        when(requestMapper.toRequest(training, ActionType.DELETE)).thenReturn(workloadRequest);
+        when(messageMapper.toMessage(training, ActionType.DELETE)).thenReturn(workloadMessage);
 
         service.deleteTraineeByUsername(username);
 
         verify(repository).findByUserUsername(username);
-        verify(requestMapper).toRequest(training, ActionType.DELETE);
+        verify(messageMapper).toMessage(training, ActionType.DELETE);
         verify(repository).deleteByUserUsername(username);
-        verify(publisher).publishEvent(new WorkloadUpdateEvent(List.of(workloadRequest)));
+        verify(publisher).publishEvent(new WorkloadUpdateEvent(List.of(workloadMessage)));
     }
 
     @Test

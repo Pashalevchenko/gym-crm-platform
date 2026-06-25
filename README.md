@@ -13,6 +13,7 @@ Java 21
 Maven
 PostgreSQL
 Redis
+ActiveMQ
 ```
 
 ## 2. Clone the project
@@ -80,6 +81,11 @@ Swagger contracts
 ```text
 gym-core-service   http://localhost:8081/gym-crm-application/swagger-ui.html
 workload-service   http://localhost:8082/workload-service/swagger-ui.html
+```
+
+ActiveMQ
+```text
+ActiveMQ Web Console -> http://localhost:8161
 ```
 ## 7.  Actuator endpoints
 
