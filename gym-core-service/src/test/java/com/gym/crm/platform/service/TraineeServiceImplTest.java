@@ -75,7 +75,7 @@ class TraineeServiceImplTest {
     private MetricsService metrics;
 
     @Mock
-    private WorkloadMessageMapper workloadMessageMapper;
+    private WorkloadMessageMapper messageMapper;
 
     @Mock
     private ApplicationEventPublisher publisher;
@@ -290,12 +290,12 @@ class TraineeServiceImplTest {
         TrainerWorkloadMessage workloadMessage = new TrainerWorkloadMessage("trainer.user", "Trainer", "User", true, LocalDate.of(2026, Month.JUNE, 10), 60, ActionType.DELETE);
 
         when(repository.findByUserUsername(username)).thenReturn(Optional.of(trainee));
-        when(workloadMessageMapper.toMessage(training, ActionType.DELETE)).thenReturn(workloadMessage);
+        when(messageMapper.toMessage(training, ActionType.DELETE)).thenReturn(workloadMessage);
 
         service.deleteTraineeByUsername(username);
 
         verify(repository).findByUserUsername(username);
-        verify(workloadMessageMapper).toMessage(training, ActionType.DELETE);
+        verify(messageMapper).toMessage(training, ActionType.DELETE);
         verify(repository).deleteByUserUsername(username);
         verify(publisher).publishEvent(new WorkloadUpdateEvent(List.of(workloadMessage)));
     }

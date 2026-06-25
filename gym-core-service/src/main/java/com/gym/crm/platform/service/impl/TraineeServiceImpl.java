@@ -141,7 +141,7 @@ public class TraineeServiceImpl implements TraineeService {
     public void deleteTraineeByUsername(String username) {
         validator.validateUsername(username);
 
-        Trainee trainee = traineeRepository.findByUserUsername(username).orElseThrow(() -> new NoSuchElementException(String.format("Trainee with username %s not found", username)));
+        Trainee trainee = getTraineeByUsername(username);
         List<TrainerWorkloadMessage> messages = trainee.getTrainings().stream()
                 .map(training -> mapper.toMessage(training, ActionType.DELETE))
                 .toList();

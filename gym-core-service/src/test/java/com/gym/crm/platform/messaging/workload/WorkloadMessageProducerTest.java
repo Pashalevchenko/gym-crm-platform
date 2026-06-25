@@ -59,17 +59,10 @@ class WorkloadMessageProducerTest {
         assertThatThrownBy(() -> producer.send(message))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessage("Failed to serialize trainer workload message");
-
         verify(mapper).writeValueAsString(message);
     }
 
     private TrainerWorkloadMessage createMessage() {
-        return new TrainerWorkloadMessage("trainer.user",
-                                          "Trainer",
-                                          "User",
-                                          true,
-                                          LocalDate.of(2026, Month.JUNE, 10),
-                                          60,
-                                          ActionType.ADD);
+        return new TrainerWorkloadMessage("trainer.user", "Trainer", "User", true, LocalDate.of(2026, Month.JUNE, 10), 60, ActionType.ADD);
     }
 }

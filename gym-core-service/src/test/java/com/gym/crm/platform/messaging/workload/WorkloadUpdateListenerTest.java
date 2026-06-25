@@ -36,12 +36,6 @@ class WorkloadUpdateListenerTest {
     }
 
     private TrainerWorkloadMessage createMessage(String username) {
-        return new TrainerWorkloadMessage(username,
-                            "Trainer",
-                            "User",
-                            true,
-                            LocalDate.of(2026, Month.JUNE, 10),
-                            60,
-                            ActionType.ADD);
+        return new TrainerWorkloadMessage(username, "Trainer", "User", true, LocalDate.of(2026, Month.JUNE, 10), 60, ActionType.ADD);
     }
 }

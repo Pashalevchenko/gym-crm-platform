@@ -5,11 +5,11 @@ import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import com.gym.crm.platform.actuator.metrics.MetricsService;
-import com.gym.crm.platform.messaging.workload.ActionType;
 import com.gym.crm.platform.entity.Trainee;
 import com.gym.crm.platform.entity.Trainer;
 import com.gym.crm.platform.entity.Training;
 import com.gym.crm.platform.entity.TrainingType;
+import com.gym.crm.platform.messaging.workload.ActionType;
 import com.gym.crm.platform.messaging.workload.TrainerWorkloadMessage;
 import com.gym.crm.platform.messaging.workload.WorkloadMessageMapper;
 import com.gym.crm.platform.messaging.workload.WorkloadUpdateEvent;
@@ -96,10 +96,10 @@ class TrainingServiceImplTest {
         TrainerWorkloadMessage workloadMessage = new TrainerWorkloadMessage("billy.herrington",
                                                                             "Billy",
                                                                             "Herrington",
-                                                                                  true,
-                                                                                          LocalDate.of(2026, Month.JUNE, 10),
-                                                                             60,
-                                                                                          ActionType.ADD);
+                                                                            true,
+                                                                            LocalDate.of(2026, Month.JUNE, 10),
+                                                                            60,
+                                                                            ActionType.ADD);
 
         when(repository.save(training)).thenReturn(createdTraining);
         when(mapper.toMessage(createdTraining, ActionType.ADD)).thenReturn(workloadMessage);
