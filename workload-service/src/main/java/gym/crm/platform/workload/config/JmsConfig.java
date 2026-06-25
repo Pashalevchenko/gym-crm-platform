@@ -12,6 +12,8 @@ import org.springframework.jms.annotation.EnableJms;
 import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
 import org.springframework.util.ErrorHandler;
 
+import java.util.List;
+
 @Slf4j
 @Configuration
 @EnableJms
@@ -32,6 +34,8 @@ public class JmsConfig {
         redeliveryPolicy.setRedeliveryDelay(delay);
 
         ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(user, password, brokerUrl);
+        connectionFactory.setTrustedPackages(List.of("java.lang", "java.util"));
+        connectionFactory.setTrustAllPackages(false);
         connectionFactory.setRedeliveryPolicy(redeliveryPolicy);
 
         return connectionFactory;
