@@ -20,3 +20,8 @@ workload:
   messaging:
     queue:
       trainer-workload: trainer.workload.queue
+      dead-letter: ActiveMQ.DLQ
+    redelivery:
+      maximum-redeliveries: 3
+      initial-delay-ms: 1000
+      delay-ms: 2000

@@ -14,12 +14,14 @@ import org.springframework.stereotype.Component;
 public class TrainerWorkloadMessageListener {
 
     private final ObjectMapper objectMapper;
+    private final TrainerWorkloadMessageValidator validator;
     private final TrainerWorkloadMessageMapper messageMapper;
     private final TrainerWorkloadServiceImpl service;
 
     @JmsListener(destination = "${workload.messaging.queue.trainer-workload}")
     public void handle(String payload) throws JsonProcessingException {
         TrainerWorkloadMessage message = objectMapper.readValue(payload, TrainerWorkloadMessage.class);
+        validator.validate(message);
 
         service.updateTrainerWorkload(messageMapper.toRequest(message));
         log.info("Trainer workload message consumed. trainer={}, actionType={}",

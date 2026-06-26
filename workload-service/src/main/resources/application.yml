@@ -29,3 +29,8 @@ workload:
   messaging:
     queue:
       trainer-workload: ${TRAINER_WORKLOAD_QUEUE:}
+      dead-letter: ${TRAINER_WORKLOAD_DLQ:}
+    redelivery:
+      maximum-redeliveries: ${WORKLOAD_MESSAGE_MAX_REDELIVERIES:}
+      initial-delay-ms: ${WORKLOAD_MESSAGE_INITIAL_REDELIVERY_DELAY_MS:}
+      delay-ms: ${WORKLOAD_MESSAGE_REDELIVERY_DELAY_MS:}
