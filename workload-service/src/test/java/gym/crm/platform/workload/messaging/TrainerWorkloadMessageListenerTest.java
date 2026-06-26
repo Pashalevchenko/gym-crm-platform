@@ -86,7 +86,6 @@ class TrainerWorkloadMessageListenerTest {
         org.mockito.Mockito.doThrow(exception).when(validator).validate(message);
 
         assertThatThrownBy(() -> listener.handle(PAYLOAD)).isSameAs(exception);
-
         verify(objectMapper).readValue(PAYLOAD, TrainerWorkloadMessage.class);
         verify(validator).validate(message);
         verify(messageMapper, never()).toRequest(any());
