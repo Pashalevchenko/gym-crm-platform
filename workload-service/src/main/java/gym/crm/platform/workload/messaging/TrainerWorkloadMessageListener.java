@@ -21,7 +21,6 @@ public class TrainerWorkloadMessageListener {
     @JmsListener(destination = "${workload.messaging.queue.trainer-workload}")
     public void handle(String payload) throws JsonProcessingException {
         TrainerWorkloadMessage message = objectMapper.readValue(payload, TrainerWorkloadMessage.class);
-
         validator.validate(message);
 
         service.updateTrainerWorkload(messageMapper.toRequest(message));
