@@ -16,6 +16,7 @@ import java.time.LocalDate;
 import java.time.Month;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -31,6 +32,9 @@ class TrainerWorkloadMessageListenerTest {
 
     @Mock
     private TrainerWorkloadMessageMapper messageMapper;
+
+    @Mock
+    private TrainerWorkloadMessageValidator validator;
 
     @Mock
     private TrainerWorkloadServiceImpl service;
@@ -52,6 +56,7 @@ class TrainerWorkloadMessageListenerTest {
         listener.handle(PAYLOAD);
 
         verify(objectMapper).readValue(PAYLOAD, TrainerWorkloadMessage.class);
+        verify(validator).validate(message);
         verify(messageMapper).toRequest(message);
         verify(service).updateTrainerWorkload(request);
     }
@@ -69,6 +74,23 @@ class TrainerWorkloadMessageListenerTest {
         verify(objectMapper).readValue(PAYLOAD, TrainerWorkloadMessage.class);
         verify(messageMapper, never()).toRequest(createMessage());
         verify(service, never()).updateTrainerWorkload(new TrainerWorkloadRequest());
+    }
+
+    @Test
+    @DisplayName("Should propagate exception when message misses required fields")
+    void handle_whenMessageMissesRequiredFields_shouldPropagateException() throws JsonProcessingException {
+        TrainerWorkloadMessage message = new TrainerWorkloadMessage(null, null, null, null, null, null, null);
+        IllegalArgumentException exception = new IllegalArgumentException("Required workload message field is missing: trainerUsername");
+
+        when(objectMapper.readValue(PAYLOAD, TrainerWorkloadMessage.class)).thenReturn(message);
+        org.mockito.Mockito.doThrow(exception).when(validator).validate(message);
+
+        assertThatThrownBy(() -> listener.handle(PAYLOAD)).isSameAs(exception);
+
+        verify(objectMapper).readValue(PAYLOAD, TrainerWorkloadMessage.class);
+        verify(validator).validate(message);
+        verify(messageMapper, never()).toRequest(any());
+        verify(service, never()).updateTrainerWorkload(any());
     }
 
     private TrainerWorkloadMessage createMessage() {
