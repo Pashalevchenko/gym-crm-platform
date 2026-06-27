@@ -2,6 +2,7 @@ package gym.crm.platform.workload.messaging;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import gym.crm.platform.workload.exception.InvalidWorkloadMessageException;
 import gym.crm.platform.workload.model.ActionType;
 import gym.crm.platform.workload.openapi.TrainerWorkloadRequest;
 import gym.crm.platform.workload.service.TrainerWorkloadServiceImpl;
@@ -69,7 +70,10 @@ class TrainerWorkloadMessageListenerTest {
 
         when(objectMapper.readValue(PAYLOAD, TrainerWorkloadMessage.class)).thenThrow(exception);
 
-        assertThatThrownBy(() -> listener.handle(PAYLOAD)).isSameAs(exception);
+        assertThatThrownBy(() -> listener.handle(PAYLOAD))
+                .isInstanceOf(InvalidWorkloadMessageException.class)
+                .hasMessage("Invalid workload message JSON")
+                .hasCause(exception);
 
         verify(objectMapper).readValue(PAYLOAD, TrainerWorkloadMessage.class);
         verify(messageMapper, never()).toRequest(createMessage());
