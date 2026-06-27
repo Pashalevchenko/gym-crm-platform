@@ -3,6 +3,7 @@ package gym.crm.platform.workload.messaging;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import gym.crm.platform.workload.exception.InvalidWorkloadMessageException;
+import gym.crm.platform.workload.exception.WorkloadMessageProcessingException;
 import gym.crm.platform.workload.model.ActionType;
 import gym.crm.platform.workload.openapi.TrainerWorkloadRequest;
 import gym.crm.platform.workload.service.TrainerWorkloadServiceImpl;
@@ -18,6 +19,7 @@ import java.time.Month;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -87,7 +89,7 @@ class TrainerWorkloadMessageListenerTest {
         IllegalArgumentException exception = new IllegalArgumentException("Required workload message field is missing: trainerUsername");
 
         when(objectMapper.readValue(PAYLOAD, TrainerWorkloadMessage.class)).thenReturn(message);
-        org.mockito.Mockito.doThrow(exception).when(validator).validate(message);
+        doThrow(exception).when(validator).validate(message);
 
         assertThatThrownBy(() -> listener.handle(PAYLOAD)).isSameAs(exception);
         verify(objectMapper).readValue(PAYLOAD, TrainerWorkloadMessage.class);
@@ -97,20 +99,27 @@ class TrainerWorkloadMessageListenerTest {
     }
 
     @Test
-    @DisplayName("Should handle null invalid payload")
-    void handle_whenPayloadIsNullAndInvalid_shouldThrowInvalidMessageException() throws JsonProcessingException {
-        JsonProcessingException exception = new JsonProcessingException("Invalid payload") {};
-        when(objectMapper.readValue((String) null, TrainerWorkloadMessage.class)).thenThrow(exception);
+    @DisplayName("Should wrap exception when workload update fails")
+    void handle_whenWorkloadUpdateFails_shouldThrowProcessingException() throws JsonProcessingException {
+        TrainerWorkloadMessage message = createMessage();
+        TrainerWorkloadRequest request = new TrainerWorkloadRequest()
+                .trainerUsername("trainer.user")
+                .trainingDuration(60);
+        RuntimeException exception = new RuntimeException("Database unavailable");
 
-        assertThatThrownBy(() -> listener.handle(null))
-                .isInstanceOf(InvalidWorkloadMessageException.class)
-                .hasMessage("Invalid workload message JSON")
+        when(objectMapper.readValue(PAYLOAD, TrainerWorkloadMessage.class)).thenReturn(message);
+        when(messageMapper.toRequest(message)).thenReturn(request);
+        doThrow(exception).when(service).updateTrainerWorkload(request);
+
+        assertThatThrownBy(() -> listener.handle(PAYLOAD))
+                .isInstanceOf(WorkloadMessageProcessingException.class)
+                .hasMessage("Failed to process workload message")
                 .hasCause(exception);
 
-        verify(objectMapper).readValue((String) null, TrainerWorkloadMessage.class);
-        verify(validator, never()).validate(any());
-        verify(messageMapper, never()).toRequest(any());
-        verify(service, never()).updateTrainerWorkload(any());
+        verify(objectMapper).readValue(PAYLOAD, TrainerWorkloadMessage.class);
+        verify(validator).validate(message);
+        verify(messageMapper).toRequest(message);
+        verify(service).updateTrainerWorkload(request);
     }
 
     private TrainerWorkloadMessage createMessage() {
