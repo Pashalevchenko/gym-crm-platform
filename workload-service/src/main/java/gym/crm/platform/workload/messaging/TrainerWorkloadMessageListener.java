@@ -64,5 +64,4 @@ public class TrainerWorkloadMessageListener {
 
         return payload.substring(0, MAX_PAYLOAD_LENGTH);
     }
-
 }

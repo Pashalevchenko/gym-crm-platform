@@ -96,6 +96,23 @@ class TrainerWorkloadMessageListenerTest {
         verify(service, never()).updateTrainerWorkload(any());
     }
 
+    @Test
+    @DisplayName("Should handle null invalid payload")
+    void handle_whenPayloadIsNullAndInvalid_shouldThrowInvalidMessageException() throws JsonProcessingException {
+        JsonProcessingException exception = new JsonProcessingException("Invalid payload") {};
+        when(objectMapper.readValue((String) null, TrainerWorkloadMessage.class)).thenThrow(exception);
+
+        assertThatThrownBy(() -> listener.handle(null))
+                .isInstanceOf(InvalidWorkloadMessageException.class)
+                .hasMessage("Invalid workload message JSON")
+                .hasCause(exception);
+
+        verify(objectMapper).readValue((String) null, TrainerWorkloadMessage.class);
+        verify(validator, never()).validate(any());
+        verify(messageMapper, never()).toRequest(any());
+        verify(service, never()).updateTrainerWorkload(any());
+    }
+
     private TrainerWorkloadMessage createMessage() {
         return new TrainerWorkloadMessage("trainer.user", "Trainer", "User", true, LocalDate.of(2026, Month.JUNE, 10), 60, ActionType.ADD);
     }
