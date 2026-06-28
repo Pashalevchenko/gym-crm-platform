@@ -1,5 +1,6 @@
 package gym.crm.platform.workload.messaging;
 
+import gym.crm.platform.workload.exception.InvalidWorkloadMessageException;
 import gym.crm.platform.workload.model.ActionType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -29,7 +30,7 @@ class TrainerWorkloadMessageValidatorTest {
         TrainerWorkloadMessage message = new TrainerWorkloadMessage(null, null, null, null, null, null, null);
 
         assertThatThrownBy(() -> validator.validate(message))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(InvalidWorkloadMessageException.class)
                 .hasMessage("Required workload message field is missing: trainerUsername");
     }
 
@@ -39,7 +40,7 @@ class TrainerWorkloadMessageValidatorTest {
         TrainerWorkloadMessage message = new TrainerWorkloadMessage("trainer.user", "Trainer", "User", true, LocalDate.of(2026, Month.JUNE, 10), 60, null);
 
         assertThatThrownBy(() -> validator.validate(message))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(InvalidWorkloadMessageException.class)
                 .hasMessage("Required workload message field is missing: actionType");
     }
 
@@ -49,7 +50,7 @@ class TrainerWorkloadMessageValidatorTest {
         TrainerWorkloadMessage message = new TrainerWorkloadMessage("trainer.user", "Trainer", "User", true, LocalDate.of(2026, Month.JUNE, 10), 0, ActionType.ADD);
 
         assertThatThrownBy(() -> validator.validate(message))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(InvalidWorkloadMessageException.class)
                 .hasMessage("Training duration must be positive");
     }
 

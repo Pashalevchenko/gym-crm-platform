@@ -1,5 +1,6 @@
 package gym.crm.platform.workload.messaging;
 
+import gym.crm.platform.workload.exception.InvalidWorkloadMessageException;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -21,13 +22,13 @@ public class TrainerWorkloadMessageValidator {
 
     private void validateRequiredText(String value, String fieldName) {
         if (value == null || value.isBlank()) {
-            throw new IllegalArgumentException(String.format("Required workload message field is missing: %s", fieldName));
+            throw new InvalidWorkloadMessageException(String.format("Required workload message field is missing: %s", fieldName));
         }
     }
 
     private void validateRequiredValue(Object value, String fieldName) {
         if (value == null) {
-            throw new IllegalArgumentException(String.format("Required workload message field is missing: %s", fieldName));
+            throw new InvalidWorkloadMessageException(String.format("Required workload message field is missing: %s", fieldName));
         }
     }
 
@@ -35,7 +36,7 @@ public class TrainerWorkloadMessageValidator {
         validateRequiredValue(trainingDuration, "trainingDuration");
 
         if (trainingDuration <= 0) {
-            throw new IllegalArgumentException("Training duration must be positive");
+            throw new InvalidWorkloadMessageException("Training duration must be positive");
         }
     }
 }
