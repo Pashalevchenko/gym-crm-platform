@@ -34,3 +34,5 @@ workload:
       maximum-redeliveries: ${WORKLOAD_MESSAGE_MAX_REDELIVERIES:}
       initial-delay-ms: ${WORKLOAD_MESSAGE_INITIAL_REDELIVERY_DELAY_MS:}
       delay-ms: ${WORKLOAD_MESSAGE_REDELIVERY_DELAY_MS:}
+    consumer:
+      concurrency: ${WORKLOAD_MESSAGE_CONSUMER_CONCURRENCY:}

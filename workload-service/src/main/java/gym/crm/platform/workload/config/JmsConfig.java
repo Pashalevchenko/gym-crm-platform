@@ -44,11 +44,13 @@ public class JmsConfig {
     @Bean
     public DefaultJmsListenerContainerFactory jmsListenerContainerFactory(ConnectionFactory connectionFactory,
                                                                           DefaultJmsListenerContainerFactoryConfigurer configurer,
-                                                                          ErrorHandler jmsErrorHandler) {
+                                                                          ErrorHandler jmsErrorHandler,
+                                                                          @Value("${workload.messaging.consumer.concurrency}") String concurrency) {
         DefaultJmsListenerContainerFactory factory = new DefaultJmsListenerContainerFactory();
         configurer.configure(factory, connectionFactory);
         factory.setSessionTransacted(true);
         factory.setErrorHandler(jmsErrorHandler);
+        factory.setConcurrency(concurrency);
 
         return factory;
     }
