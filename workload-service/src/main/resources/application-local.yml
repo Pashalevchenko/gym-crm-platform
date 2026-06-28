@@ -25,3 +25,5 @@ workload:
       maximum-redeliveries: 3
       initial-delay-ms: 1000
       delay-ms: 2000
+    consumer:
+      concurrency: 2-3
