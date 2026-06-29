@@ -8,12 +8,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 
-import java.time.Duration;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -25,7 +23,8 @@ import static org.mockito.Mockito.when;
 class TokenBlacklistServiceTest {
 
     private static final String TOKEN = "jwt-token";
-    private static final String BLACKLIST_KEY = "blacklist:" + TOKEN;
+    private static final String HASHED_TOKEN = "637dca1ed85901f74d2634ec978c3e441598b7cc2f86a2b9a004662222009808";
+    private static final String BLACKLIST_KEY = "blacklist:" + HASHED_TOKEN;
 
     @Mock
     private StringRedisTemplate redisTemplate;
@@ -56,16 +55,16 @@ class TokenBlacklistServiceTest {
         service.blacklist(TOKEN);
 
         verify(redisTemplate, never()).opsForValue();
-        verify(valueOperations, never()).set(anyString(), anyString(), any(Duration.class));
+        verify(valueOperations, never()).set(anyString(), anyString(), anyLong(), eq(TimeUnit.MILLISECONDS));
     }
 
     @Test
     void isBlacklisted_shouldReturnTrue_WhenKeyExistsInRedis() {
         when(redisTemplate.hasKey(BLACKLIST_KEY)).thenReturn(true);
 
-        boolean result = service.isBlacklisted(TOKEN);
+        boolean actual = service.isBlacklisted(TOKEN);
 
-        assertThat(result).isTrue();
+        assertThat(actual).isTrue();
         verify(redisTemplate).hasKey(BLACKLIST_KEY);
     }
 
@@ -73,9 +72,9 @@ class TokenBlacklistServiceTest {
     void isBlacklisted_shouldReturnFalseForUnknownToken() {
         when(redisTemplate.hasKey(BLACKLIST_KEY)).thenReturn(false);
 
-        boolean result = service.isBlacklisted(TOKEN);
+        boolean actual = service.isBlacklisted(TOKEN);
 
-        assertThat(result).isFalse();
+        assertThat(actual).isFalse();
         verify(redisTemplate).hasKey(BLACKLIST_KEY);
     }
 }

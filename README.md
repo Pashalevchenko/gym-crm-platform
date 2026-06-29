@@ -33,6 +33,39 @@ CREATE USER gym WITH PASSWORD 'gym';
 GRANT ALL PRIVILEGES ON DATABASE gym_db TO gym;
 ```
 
+## ActiveMQ Setup
+
+The platform uses ActiveMQ Classic for asynchronous workload messages between `gym-core-service` and `workload-service`.
+
+Local broker connection:
+
+```yml
+spring:
+  activemq:
+    broker-url: tcp://localhost:61616
+    user: admin
+    password: admin
+```
+```text
+Broker URL    tcp://localhost:61616
+Web console   http://localhost:8161/admin
+Credentials   admin / admin
+```
+
+ActiveMQ credentials
+
+For a local ActiveMQ installation, the default credentials are usually:
+
+```text
+admin / admin
+```
+Сredentials can be changed in:
+
+```text
+<ACTIVE_MQ_HOME>/conf/users.properties
+<ACTIVE_MQ_HOME>/conf/groups.properties
+```
+
 ## 4. Build the project
 
 ```bash
