@@ -136,7 +136,6 @@
                         <configuration>
                             <excludes>
                                 <exclude>**/config/**</exclude>
-                                <exclude>**/model/**</exclude>
                             </excludes>
                         </configuration>
                     </execution>
