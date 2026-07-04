@@ -1,70 +1,107 @@
 package gym.crm.platform.workload.repository;
 
+import gym.crm.platform.workload.config.MongoContainerTestConfig;
+import gym.crm.platform.workload.model.MonthSummary;
 import gym.crm.platform.workload.model.TrainerWorkload;
+import gym.crm.platform.workload.model.YearSummary;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
-import org.springframework.test.context.ActiveProfiles;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @DataMongoTest
-@ActiveProfiles("test")
+@Testcontainers(disabledWithoutDocker = true)
 class TrainerWorkloadRepositoryTest {
 
     private static final String USERNAME = "billy.herrington";
     private static final String UNKNOWN_USERNAME = "unknown.user";
+    private static final String FIRST_NAME = "Billy";
+    private static final String LAST_NAME = "Herrington";
+    private static final int YEAR = 2026;
+    private static final int MONTH = 6;
+    private static final int DURATION = 60;
 
     @Autowired
     private TrainerWorkloadRepository repository;
 
+    @Autowired
+    private MongoTemplate mongoTemplate;
+
+    @DynamicPropertySource
+    static void setMongoProperties(DynamicPropertyRegistry registry) {
+        MongoContainerTestConfig.setMongoContainerProperties(registry);
+    }
+
     @BeforeEach
     void setUp() {
-        repository.deleteAll();
+        mongoTemplate.dropCollection(TrainerWorkload.class);
     }
 
     @Test
     void save_shouldStoreTrainerWorkload() {
-        TrainerWorkload expected = buildTrainer();
+        TrainerWorkload expected = buildTrainerWorkload();
 
-        TrainerWorkload actual = repository.save(expected);
-
-        assertEquals(USERNAME, actual.getTrainerUsername());
-        assertTrue(repository.existsByTrainerUsername(USERNAME));
-    }
-
-    @Test
-    void findByUsername_shouldReturnTrainerWorkload_whenExists() {
-        TrainerWorkload workload = buildTrainer();
-        repository.save(workload);
+        TrainerWorkload saved = repository.save(expected);
 
         Optional<TrainerWorkload> actual = repository.findByTrainerUsername(USERNAME);
 
-        assertTrue(actual.isPresent());
-        assertEquals(USERNAME, actual.get().getTrainerUsername());
+        assertThat(saved.getTrainerUsername()).isEqualTo(USERNAME);
+        assertThat(actual).isPresent();
+        assertThat(actual.get())
+                .usingRecursiveComparison()
+                .isEqualTo(saved);
     }
 
     @Test
-    void findByUsername_shouldReturnEmpty_whenNotExists() {
-        Optional<TrainerWorkload> actual = repository.findByTrainerUsername("unknown.user");
+    void findByTrainerUsername_shouldReturnTrainerWorkload_whenExists() {
+        TrainerWorkload expected = buildTrainerWorkload();
+        mongoTemplate.save(expected);
 
-        assertTrue(actual.isEmpty());
+        Optional<TrainerWorkload> actual = repository.findByTrainerUsername(USERNAME);
+
+        assertThat(actual).isPresent();
+        assertThat(actual.get())
+                .usingRecursiveComparison()
+                .isEqualTo(expected);
     }
 
     @Test
-    void existsByUsername_shouldReturnFalse_whenNotExists() {
+    void findByTrainerUsername_shouldReturnEmpty_whenNotExists() {
+        Optional<TrainerWorkload> actual = repository.findByTrainerUsername(UNKNOWN_USERNAME);
+
+        assertThat(actual).isEmpty();
+    }
+
+    @Test
+    void existsByTrainerUsername_shouldReturnTrue_whenExists() {
+        TrainerWorkload expected = buildTrainerWorkload();
+        mongoTemplate.save(expected);
+
+        boolean actual = repository.existsByTrainerUsername(USERNAME);
+
+        assertThat(actual).isTrue();
+    }
+
+    @Test
+    void existsByTrainerUsername_shouldReturnFalse_whenNotExists() {
         boolean actual = repository.existsByTrainerUsername(UNKNOWN_USERNAME);
 
-        assertFalse(actual);
+        assertThat(actual).isFalse();
     }
 
-    private TrainerWorkload buildTrainer() {
-        return new TrainerWorkload(USERNAME, "Billy", "Herrington", true, new ArrayList<>());
+    private TrainerWorkload buildTrainerWorkload() {
+        MonthSummary monthSummary = new MonthSummary(MONTH, DURATION);
+        YearSummary yearSummary = new YearSummary(YEAR, List.of(monthSummary));
+
+        return new TrainerWorkload(USERNAME, FIRST_NAME, LAST_NAME, true, List.of(yearSummary));
     }
 }
