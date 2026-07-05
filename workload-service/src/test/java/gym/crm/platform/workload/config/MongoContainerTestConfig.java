@@ -1,9 +1,7 @@
 package gym.crm.platform.workload.config;
 
-import gym.crm.platform.workload.model.TrainerWorkload;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
