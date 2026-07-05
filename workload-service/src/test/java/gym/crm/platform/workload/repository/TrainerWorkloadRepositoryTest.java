@@ -11,7 +11,6 @@ import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,7 +18,6 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataMongoTest
-@Testcontainers(disabledWithoutDocker = true)
 class TrainerWorkloadRepositoryTest {
 
     private static final String USERNAME = "billy.herrington";
@@ -34,7 +32,7 @@ class TrainerWorkloadRepositoryTest {
     private TrainerWorkloadRepository repository;
 
     @Autowired
-    private MongoTemplate mongoTemplate;
+    private MongoTemplate template;
 
     @DynamicPropertySource
     static void setMongoProperties(DynamicPropertyRegistry registry) {
@@ -43,13 +41,12 @@ class TrainerWorkloadRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        mongoTemplate.dropCollection(TrainerWorkload.class);
+        template.dropCollection(TrainerWorkload.class);
     }
 
     @Test
     void save_shouldStoreTrainerWorkload() {
         TrainerWorkload expected = buildTrainerWorkload();
-
         TrainerWorkload saved = repository.save(expected);
 
         Optional<TrainerWorkload> actual = repository.findByTrainerUsername(USERNAME);
@@ -64,7 +61,7 @@ class TrainerWorkloadRepositoryTest {
     @Test
     void findByTrainerUsername_shouldReturnTrainerWorkload_whenExists() {
         TrainerWorkload expected = buildTrainerWorkload();
-        mongoTemplate.save(expected);
+        template.save(expected);
 
         Optional<TrainerWorkload> actual = repository.findByTrainerUsername(USERNAME);
 
@@ -84,7 +81,7 @@ class TrainerWorkloadRepositoryTest {
     @Test
     void existsByTrainerUsername_shouldReturnTrue_whenExists() {
         TrainerWorkload expected = buildTrainerWorkload();
-        mongoTemplate.save(expected);
+        template.save(expected);
 
         boolean actual = repository.existsByTrainerUsername(USERNAME);
 
