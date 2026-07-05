@@ -1,14 +1,13 @@
 package gym.crm.platform.workload.repository;
 
 import gym.crm.platform.workload.model.TrainerWorkload;
+import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.util.Optional;
 
-public interface TrainerWorkloadRepository {
+public interface TrainerWorkloadRepository extends MongoRepository<TrainerWorkload, String> {
 
-    Optional<TrainerWorkload> findByUsername(String username);
+    Optional<TrainerWorkload> findByTrainerUsername(String username);
 
-    TrainerWorkload save(TrainerWorkload trainerWorkload);
-
-    boolean existsByUsername(String username);
+    boolean existsByTrainerUsername(String username);
 }

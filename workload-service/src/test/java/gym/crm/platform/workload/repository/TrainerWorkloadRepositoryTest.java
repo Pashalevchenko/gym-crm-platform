@@ -1,59 +1,83 @@
 package gym.crm.platform.workload.repository;
 
+import gym.crm.platform.workload.config.MongoContainerTestConfig;
+import gym.crm.platform.workload.model.MonthSummary;
 import gym.crm.platform.workload.model.TrainerWorkload;
+import gym.crm.platform.workload.model.YearSummary;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
-class TrainerWorkloadRepositoryTest {
+@DataMongoTest
+class TrainerWorkloadRepositoryTest extends MongoContainerTestConfig<TrainerWorkloadRepository> {
 
     private static final String USERNAME = "billy.herrington";
     private static final String UNKNOWN_USERNAME = "unknown.user";
-
-    private final TrainerWorkloadRepositoryImpl repository = new TrainerWorkloadRepositoryImpl();
+    private static final String FIRST_NAME = "Billy";
+    private static final String LAST_NAME = "Herrington";
+    private static final int YEAR = 2026;
+    private static final int MONTH = 6;
+    private static final int DURATION = 60;
 
     @Test
     void save_shouldStoreTrainerWorkload() {
-        TrainerWorkload expected = buildTrainer();
+        TrainerWorkload expected = buildTrainerWorkload();
+        TrainerWorkload saved = repository.save(expected);
 
-        TrainerWorkload actual = repository.save(expected);
+        Optional<TrainerWorkload> actual = repository.findByTrainerUsername(USERNAME);
 
-        assertSame(expected, actual);
-        assertTrue(repository.existsByUsername(USERNAME));
+        assertThat(saved.getTrainerUsername()).isEqualTo(USERNAME);
+        assertThat(actual).isPresent();
+        assertThat(actual.get())
+                .usingRecursiveComparison()
+                .isEqualTo(saved);
     }
 
     @Test
-    void findByUsername_shouldReturnTrainerWorkload_whenExists() {
-        TrainerWorkload workload = buildTrainer();
-        repository.save(workload);
+    void findByTrainerUsername_shouldReturnTrainerWorkload_whenExists() {
+        TrainerWorkload expected = buildTrainerWorkload();
+        repository.save(expected);
 
-        Optional<TrainerWorkload> actual = repository.findByUsername(USERNAME);
+        Optional<TrainerWorkload> actual = repository.findByTrainerUsername(USERNAME);
 
-        assertTrue(actual.isPresent());
-        assertEquals(USERNAME, actual.get().getTrainerUsername());
+        assertThat(actual).isPresent();
+        assertThat(actual.get())
+                .usingRecursiveComparison()
+                .isEqualTo(expected);
     }
 
     @Test
-    void findByUsername_shouldReturnEmpty_whenNotExists() {
-        Optional<TrainerWorkload> actual = repository.findByUsername("unknown.user");
+    void findByTrainerUsername_shouldReturnEmpty_whenNotExists() {
+        Optional<TrainerWorkload> actual = repository.findByTrainerUsername(UNKNOWN_USERNAME);
 
-        assertTrue(actual.isEmpty());
+        assertThat(actual).isEmpty();
     }
 
     @Test
-    void existsByUsername_shouldReturnFalse_whenNotExists() {
-        boolean actual = repository.existsByUsername(UNKNOWN_USERNAME);
+    void existsByTrainerUsername_shouldReturnTrue_whenExists() {
+        TrainerWorkload expected = buildTrainerWorkload();
+        repository.save(expected);
 
-        assertFalse(actual);
+        boolean actual = repository.existsByTrainerUsername(USERNAME);
+
+        assertThat(actual).isTrue();
     }
 
-    private TrainerWorkload buildTrainer() {
-        return new TrainerWorkload(USERNAME, "Billy", "Herrington", true, new ArrayList<>());
+    @Test
+    void existsByTrainerUsername_shouldReturnFalse_whenNotExists() {
+        boolean actual = repository.existsByTrainerUsername(UNKNOWN_USERNAME);
+
+        assertThat(actual).isFalse();
+    }
+
+    private TrainerWorkload buildTrainerWorkload() {
+        MonthSummary monthSummary = new MonthSummary(MONTH, DURATION);
+        YearSummary yearSummary = new YearSummary(YEAR, List.of(monthSummary));
+
+        return new TrainerWorkload(USERNAME, FIRST_NAME, LAST_NAME, true, List.of(yearSummary));
     }
 }
