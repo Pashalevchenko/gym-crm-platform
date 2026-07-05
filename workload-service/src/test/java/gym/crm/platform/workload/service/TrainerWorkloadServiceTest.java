@@ -55,9 +55,11 @@ class TrainerWorkloadServiceTest {
 
     @Test
     void getMonthlyWorkload_shouldThrowException_whenWorkloadDoesNotExist() {
+        int month = TRAINING_MONTH.getValue();
+
         when(repository.findByTrainerUsername(USERNAME)).thenReturn(Optional.empty());
 
-        NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> service.getMonthlyWorkload(USERNAME, YEAR, TRAINING_MONTH.getValue()));
+        NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> service.getMonthlyWorkload(USERNAME, YEAR, month));
 
         assertThat(exception.getMessage()).isEqualTo("Trainer workload not found: billy.herrington");
         verify(repository).findByTrainerUsername(USERNAME);
