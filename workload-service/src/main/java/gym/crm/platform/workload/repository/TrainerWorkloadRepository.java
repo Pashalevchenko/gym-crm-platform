@@ -7,7 +7,7 @@ import java.util.Optional;
 
 public interface TrainerWorkloadRepository extends MongoRepository<TrainerWorkload, String> {
 
-    Optional<TrainerWorkload> findByTrainerUsername(String trainerUsername);
+    Optional<TrainerWorkload> findByTrainerUsername(String username);
 
-    boolean existsByTrainerUsername(String trainerUsername);
+    boolean existsByTrainerUsername(String username);
 }
