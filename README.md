@@ -14,6 +14,7 @@ Maven
 PostgreSQL
 Redis
 ActiveMQ
+MongoDB
 ```
 
 ## 2. Clone the project
@@ -31,6 +32,17 @@ Before the first run, create a database and user with proper privileges:
 CREATE DATABASE gym_db;
 CREATE USER gym WITH PASSWORD 'gym';
 GRANT ALL PRIVILEGES ON DATABASE gym_db TO gym;
+```
+
+## MongoDB Setup
+
+The `workload-service` uses MongoDB to store trainer workload summaries.
+
+Default local connection:
+```text
+Host       localhost
+Port       27017
+Database   workload_service
 ```
 
 ## ActiveMQ Setup

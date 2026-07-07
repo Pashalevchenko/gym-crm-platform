@@ -7,8 +7,14 @@ import gym.crm.platform.workload.exception.WorkloadMessageProcessingException;
 import gym.crm.platform.workload.service.TrainerWorkloadServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.jms.annotation.JmsListener;
+import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
+
+import java.io.Closeable;
+import java.io.IOException;
+import java.util.UUID;
 
 @Slf4j
 @Component
@@ -16,6 +22,7 @@ import org.springframework.stereotype.Component;
 public class TrainerWorkloadMessageListener {
 
     private static final int MAX_PAYLOAD_LENGTH = 1000;
+    private static final String TRANSACTION_ID = "transactionId";
 
     private final ObjectMapper objectMapper;
     private final TrainerWorkloadMessageValidator validator;
@@ -23,15 +30,22 @@ public class TrainerWorkloadMessageListener {
     private final TrainerWorkloadServiceImpl service;
 
     @JmsListener(destination = "${workload.messaging.queue.trainer-workload}")
-    public void handle(String payload) {
-        TrainerWorkloadMessage message = readMessage(payload);
+    public void handle(String payload, @Header(name = TRANSACTION_ID, required = false) String transactionId) {
+        String resolvedTransactionId = resolveTransactionId(transactionId);
 
-        validator.validate(message);
-        processMessage(message);
+        try (Closeable ignored = MDC.putCloseable(TRANSACTION_ID, resolvedTransactionId)) {
+            TrainerWorkloadMessage message = readMessage(payload);
 
-        log.info("Trainer workload message consumed. trainer={}, actionType={}",
-                message.trainerUsername(),
-                message.actionType());
+            validator.validate(message);
+            processMessage(message);
+
+            log.info("Trainer workload message consumed. trainer={}, actionType={}, transactionId={}",
+                    message.trainerUsername(),
+                    message.actionType(),
+                    resolvedTransactionId);
+        } catch (IOException exception) {
+            throw new IllegalStateException("Failed to close transaction MDC", exception);
+        }
     }
 
     private TrainerWorkloadMessage readMessage(String payload) {
@@ -47,14 +61,23 @@ public class TrainerWorkloadMessageListener {
         try {
             service.updateTrainerWorkload(messageMapper.toRequest(message));
         } catch (RuntimeException exception) {
-            log.error("Failed to process workload message. trainer={}, actionType={}, reason={}",
+            log.error("Failed to process workload message. trainer={}, actionType={}, reason={}, transactionId={}",
                     message.trainerUsername(),
                     message.actionType(),
                     exception.getMessage(),
+                    MDC.get(TRANSACTION_ID),
                     exception);
 
             throw new WorkloadMessageProcessingException("Failed to process workload message", exception);
         }
+    }
+
+    private String resolveTransactionId(String transactionId) {
+        if (transactionId == null || transactionId.isBlank()) {
+            return UUID.randomUUID().toString();
+        }
+
+        return transactionId;
     }
 
     private String shorten(String payload) {

@@ -10,11 +10,15 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.mockito.ArgumentCaptor;
+import org.springframework.jms.core.MessagePostProcessor;
+import static org.mockito.ArgumentMatchers.eq;
 
 import java.time.LocalDate;
 import java.time.Month;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -39,13 +43,14 @@ class WorkloadMessageProducerTest {
     void send_shouldSerializeAndSendTrainerWorkloadMessage() throws JsonProcessingException {
         TrainerWorkloadMessage message = createMessage();
         ReflectionTestUtils.setField(producer, "trainerWorkloadQueue", QUEUE_NAME);
+        ArgumentCaptor<MessagePostProcessor> postProcessorCaptor = ArgumentCaptor.forClass(MessagePostProcessor.class);
 
         when(mapper.writeValueAsString(message)).thenReturn(PAYLOAD);
 
         producer.send(message);
 
-        verify(mapper).writeValueAsString(message);
-        verify(template).convertAndSend(QUEUE_NAME, PAYLOAD);
+        verify(template).convertAndSend(eq(QUEUE_NAME), eq(PAYLOAD), postProcessorCaptor.capture());
+        assertThat(postProcessorCaptor.getValue()).isNotNull();
     }
 
     @Test
