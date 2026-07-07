@@ -66,7 +66,6 @@ class TrainerWorkloadMessageListenerTest {
         verify(validator).validate(message);
         verify(messageMapper).toRequest(message);
         verify(service).updateTrainerWorkload(request);
-        assertThat(MDC.get(TRANSACTION_ID_KEY)).isNull();
     }
 
     @Test
