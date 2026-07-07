@@ -13,10 +13,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.slf4j.MDC;
 
 import java.time.LocalDate;
 import java.time.Month;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
@@ -30,6 +32,7 @@ class TrainerWorkloadMessageListenerTest {
 
     private static final String PAYLOAD = "{\"trainerUsername\":\"trainer.user\"}";
     private static final String TRANSACTION_ID = "transaction-123";
+    private static final String TRANSACTION_ID_KEY = "transactionId";
 
     @Mock
     private ObjectMapper objectMapper;
@@ -63,6 +66,7 @@ class TrainerWorkloadMessageListenerTest {
         verify(validator).validate(message);
         verify(messageMapper).toRequest(message);
         verify(service).updateTrainerWorkload(request);
+        assertThat(MDC.get(TRANSACTION_ID_KEY)).isNull();
     }
 
     @Test
