@@ -127,6 +127,17 @@ class TrainerWorkloadMessageListenerTest {
         verify(service).updateTrainerWorkload(request);
     }
 
+    @Test
+    @DisplayName("Should shorten long invalid payload")
+    void handle_whenInvalidPayloadIsLong_shouldThrowException() throws JsonProcessingException {
+        String longPayload = "x".repeat(1200);
+        JsonProcessingException exception = new JsonProcessingException("invalid payload") {};
+
+        when(objectMapper.readValue(longPayload, TrainerWorkloadMessage.class)).thenThrow(exception);
+
+        assertThatThrownBy(() -> listener.handle(longPayload, TRANSACTION_ID)).isInstanceOf(InvalidWorkloadMessageException.class);
+    }
+
     private TrainerWorkloadMessage createMessage() {
         return new TrainerWorkloadMessage("trainer.user", "Trainer", "User", true, LocalDate.of(2026, Month.JUNE, 10), 60, ActionType.ADD);
     }
