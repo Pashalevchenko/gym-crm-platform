@@ -12,8 +12,6 @@ import org.springframework.jms.annotation.JmsListener;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
 
-import java.io.Closeable;
-import java.io.IOException;
 import java.util.UUID;
 
 @Slf4j
@@ -33,7 +31,7 @@ public class TrainerWorkloadMessageListener {
     public void handle(String payload, @Header(name = TRANSACTION_ID, required = false) String transactionId) {
         String resolvedTransactionId = resolveTransactionId(transactionId);
 
-        try (Closeable ignored = MDC.putCloseable(TRANSACTION_ID, resolvedTransactionId)) {
+        try (MDC.MDCCloseable ignored = MDC.putCloseable(TRANSACTION_ID, resolvedTransactionId)) {
             TrainerWorkloadMessage message = readMessage(payload);
 
             validator.validate(message);
@@ -43,8 +41,6 @@ public class TrainerWorkloadMessageListener {
                     message.trainerUsername(),
                     message.actionType(),
                     resolvedTransactionId);
-        } catch (IOException exception) {
-            throw new IllegalStateException("Failed to close transaction MDC", exception);
         }
     }
 
