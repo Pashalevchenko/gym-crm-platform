@@ -29,6 +29,7 @@ import static org.mockito.Mockito.when;
 class TrainerWorkloadMessageListenerTest {
 
     private static final String PAYLOAD = "{\"trainerUsername\":\"trainer.user\"}";
+    private static final String TRANSACTION_ID = "transaction-123";
 
     @Mock
     private ObjectMapper objectMapper;
@@ -56,7 +57,7 @@ class TrainerWorkloadMessageListenerTest {
         when(objectMapper.readValue(PAYLOAD, TrainerWorkloadMessage.class)).thenReturn(message);
         when(messageMapper.toRequest(message)).thenReturn(request);
 
-        listener.handle(PAYLOAD);
+        listener.handle(PAYLOAD, TRANSACTION_ID);
 
         verify(objectMapper).readValue(PAYLOAD, TrainerWorkloadMessage.class);
         verify(validator).validate(message);
@@ -72,7 +73,7 @@ class TrainerWorkloadMessageListenerTest {
 
         when(objectMapper.readValue(PAYLOAD, TrainerWorkloadMessage.class)).thenThrow(exception);
 
-        assertThatThrownBy(() -> listener.handle(PAYLOAD))
+        assertThatThrownBy(() -> listener.handle(PAYLOAD, TRANSACTION_ID))
                 .isInstanceOf(InvalidWorkloadMessageException.class)
                 .hasMessage("Invalid workload message JSON")
                 .hasCause(exception);
@@ -91,7 +92,7 @@ class TrainerWorkloadMessageListenerTest {
         when(objectMapper.readValue(PAYLOAD, TrainerWorkloadMessage.class)).thenReturn(message);
         doThrow(exception).when(validator).validate(message);
 
-        assertThatThrownBy(() -> listener.handle(PAYLOAD)).isSameAs(exception);
+        assertThatThrownBy(() -> listener.handle(PAYLOAD, TRANSACTION_ID)).isSameAs(exception);
         verify(objectMapper).readValue(PAYLOAD, TrainerWorkloadMessage.class);
         verify(validator).validate(message);
         verify(messageMapper, never()).toRequest(any());
@@ -111,7 +112,7 @@ class TrainerWorkloadMessageListenerTest {
         when(messageMapper.toRequest(message)).thenReturn(request);
         doThrow(exception).when(service).updateTrainerWorkload(request);
 
-        assertThatThrownBy(() -> listener.handle(PAYLOAD))
+        assertThatThrownBy(() -> listener.handle(PAYLOAD, TRANSACTION_ID))
                 .isInstanceOf(WorkloadMessageProcessingException.class)
                 .hasMessage("Failed to process workload message")
                 .hasCause(exception);

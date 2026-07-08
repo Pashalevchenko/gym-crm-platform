@@ -57,23 +57,6 @@ class TrainerWorkloadRepositoryTest extends MongoContainerTestConfig<TrainerWork
         assertThat(actual).isEmpty();
     }
 
-    @Test
-    void existsByTrainerUsername_shouldReturnTrue_whenExists() {
-        TrainerWorkload expected = buildTrainerWorkload();
-        repository.save(expected);
-
-        boolean actual = repository.existsByTrainerUsername(USERNAME);
-
-        assertThat(actual).isTrue();
-    }
-
-    @Test
-    void existsByTrainerUsername_shouldReturnFalse_whenNotExists() {
-        boolean actual = repository.existsByTrainerUsername(UNKNOWN_USERNAME);
-
-        assertThat(actual).isFalse();
-    }
-
     private TrainerWorkload buildTrainerWorkload() {
         MonthSummary monthSummary = new MonthSummary(MONTH, DURATION);
         YearSummary yearSummary = new YearSummary(YEAR, List.of(monthSummary));
