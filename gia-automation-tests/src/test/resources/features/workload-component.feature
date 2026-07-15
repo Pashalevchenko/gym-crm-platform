@@ -3,13 +3,15 @@ Feature: Workload service component API
 
   @workload-update
   Scenario: Update trainer workload successfully
-    Given an authenticated gym user
+    Given a gym user is registered
+    And the gym user is authenticated
     When trainer workload is updated through workload service
     Then the response status is 200
 
   @workload-get
   Scenario: Get trainer monthly workload successfully
-    Given an authenticated gym user
+    Given a gym user is registered
+    And the gym user is authenticated
     When trainer workload is updated through workload service
     Then the response status is 200
     When trainer monthly workload is requested through workload service
@@ -18,7 +20,8 @@ Feature: Workload service component API
 
   @workload-validation
   Scenario: Reject invalid workload update request
-    Given an authenticated gym user
+    Given a gym user is registered
+    And the gym user is authenticated
     When invalid trainer workload is sent through workload service
     Then the response status is 400
     And the response contains an error body

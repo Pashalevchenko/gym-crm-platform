@@ -24,7 +24,25 @@ public class AuthSteps {
 
     @Given("an authenticated gym user")
     public void anAuthenticatedGymUser() {
-        ensureRegisteredUser();
+        aGymUserIsRegistered();
+        theGymUserIsAuthenticated();
+    }
+
+    @Given("a gym user is registered")
+    public void aGymUserIsRegistered() {
+        if (context.getString("authUsername") != null) {
+            return;
+        }
+
+        Response response = coreClient.post("/trainees/register", null, Payloads.trainee(uniqueName("Auth"), uniqueName("User")));
+
+        assertThat(response.statusCode()).isEqualTo(200);
+        context.put("authUsername", response.jsonPath().getString("username"));
+        context.put("authPassword", response.jsonPath().getString("password"));
+    }
+
+    @Given("the gym user is authenticated")
+    public void theGymUserIsAuthenticated() {
         Response response = coreClient.post("/auth/login", null, Payloads.login(context.getString("authUsername"), context.getString("authPassword")));
 
         assertThat(response.statusCode()).isEqualTo(200);
@@ -40,18 +58,6 @@ public class AuthSteps {
     @When("the user logs in with invalid credentials")
     public void theUserLogsInWithInvalidCredentials() {
         context.setLastResponse(coreClient.post("/auth/login", null, Payloads.login("unknown.user", "wrong-password")));
-    }
-
-    private void ensureRegisteredUser() {
-        if (context.getString("authUsername") != null) {
-            return;
-        }
-
-        Response response = coreClient.post("/trainees/register", null, Payloads.trainee(uniqueName("Auth"), uniqueName("User")));
-
-        assertThat(response.statusCode()).isEqualTo(200);
-        context.put("authUsername", response.jsonPath().getString("username"));
-        context.put("authPassword", response.jsonPath().getString("password"));
     }
 
     private String uniqueName(String prefix) {
