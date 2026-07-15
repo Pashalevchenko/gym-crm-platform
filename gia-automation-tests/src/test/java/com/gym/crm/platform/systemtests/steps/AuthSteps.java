@@ -8,6 +8,8 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.When;
 import io.restassured.response.Response;
 
+import java.util.Locale;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class AuthSteps {
@@ -22,7 +24,8 @@ public class AuthSteps {
 
     @Given("an authenticated gym user")
     public void anAuthenticatedGymUser() {
-        Response response = coreClient.post("/auth/login", null, Payloads.login(TestProperties.defaultUsername(), TestProperties.defaultPassword()));
+        ensureRegisteredUser();
+        Response response = coreClient.post("/auth/login", null, Payloads.login(context.getString("authUsername"), context.getString("authPassword")));
 
         assertThat(response.statusCode()).isEqualTo(200);
         context.setToken(response.jsonPath().getString("token"));
@@ -37,5 +40,21 @@ public class AuthSteps {
     @When("the user logs in with invalid credentials")
     public void theUserLogsInWithInvalidCredentials() {
         context.setLastResponse(coreClient.post("/auth/login", null, Payloads.login("unknown.user", "wrong-password")));
+    }
+
+    private void ensureRegisteredUser() {
+        if (context.getString("authUsername") != null) {
+            return;
+        }
+
+        Response response = coreClient.post("/trainees/register", null, Payloads.trainee(uniqueName("Auth"), uniqueName("User")));
+
+        assertThat(response.statusCode()).isEqualTo(200);
+        context.put("authUsername", response.jsonPath().getString("username"));
+        context.put("authPassword", response.jsonPath().getString("password"));
+    }
+
+    private String uniqueName(String prefix) {
+        return (prefix + System.nanoTime()).toLowerCase(Locale.ROOT);
     }
 }
