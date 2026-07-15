@@ -19,6 +19,7 @@
         <module>workload-service</module>
         <module>discovery-server</module>
         <module>gateway-service</module>
+        <module>gia-automation-tests</module>
     </modules>
 
     <properties>
