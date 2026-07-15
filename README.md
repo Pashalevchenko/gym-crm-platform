@@ -196,3 +196,60 @@ gym_trainings_total    - total number of created trainings since application sta
 gym_trainees_active    - current number of active trainees
 gym_trainers_active    - current number of active trainers
 ```
+
+## 8. Integration tests
+
+Before running integration tests, start:
+
+```text
+discovery-server
+api-gateway
+gym-core-service
+workload-service
+PostgreSQL
+Redis
+ActiveMQ
+MongoDB
+```
+
+Run this class from IDE:
+
+```text
+com.gym.crm.platform.systemtests.CucumberTest
+```
+
+Run all system tests from console:
+
+```bash
+mvn -pl system-tests test -DskipSystemTests=false
+```
+
+Run component tests only:
+
+```bash
+mvn -pl system-tests test -DskipSystemTests=false -Dcucumber.filter.tags="@component"
+```
+
+Run integration tests only:
+
+```bash
+mvn -pl system-tests test -DskipSystemTests=false -Dcucumber.filter.tags="@integration"
+```
+
+Run tests for one endpoint group:
+
+```bash
+mvn -pl system-tests test -DskipSystemTests=false -Dcucumber.filter.tags="@auth-login"
+mvn -pl system-tests test -DskipSystemTests=false -Dcucumber.filter.tags="@workload-update"
+```
+
+Default system test URLs and credentials are configured in `system-tests/pom.xml`.
+They can be overridden from the command line:
+
+```bash
+mvn -pl system-tests test -DskipSystemTests=false ^
+  -Dcore.base.url=https://dev-gateway.example.com/gym-crm-application/api/v1 ^
+  -Dworkload.base.url=https://dev-gateway.example.com/workload-service/api/v1 ^
+  -Ddefault.username=billy.herrington ^
+  -Ddefault.password=password
+```

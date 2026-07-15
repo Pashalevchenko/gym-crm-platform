@@ -18,6 +18,10 @@
         <rest-assured.version>5.5.0</rest-assured.version>
         <awaitility.version>4.2.2</awaitility.version>
         <skipSystemTests>true</skipSystemTests>
+        <core.base.url>http://localhost:8080/gym-crm-application/api/v1</core.base.url>
+        <workload.base.url>http://localhost:8080/workload-service/api/v1</workload.base.url>
+        <default.username>billy.herrington</default.username>
+        <default.password>password</default.password>
     </properties>
 
     <dependencies>
@@ -79,6 +83,10 @@
                     </includes>
                     <systemPropertyVariables>
                         <cucumber.junit-platform.naming-strategy>long</cucumber.junit-platform.naming-strategy>
+                        <system.tests.core.base-url>${core.base.url}</system.tests.core.base-url>
+                        <system.tests.workload.base-url>${workload.base.url}</system.tests.workload.base-url>
+                        <system.tests.default-username>${default.username}</system.tests.default-username>
+                        <system.tests.default-password>${default.password}</system.tests.default-password>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>

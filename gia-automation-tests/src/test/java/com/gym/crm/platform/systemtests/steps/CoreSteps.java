@@ -34,8 +34,8 @@ public class CoreSteps {
 
     private void rememberCredentials(String prefix, Response response) {
         if (response.statusCode() == 200) {
-            context.put(prefix + "Username", response.jsonPath().getString("username"));
-            context.put(prefix + "Password", response.jsonPath().getString("password"));
+            context.put(String.format("%sUsername", prefix), response.jsonPath().getString("username"));
+            context.put(String.format("%sPassword", prefix), response.jsonPath().getString("password"));
         }
     }
 

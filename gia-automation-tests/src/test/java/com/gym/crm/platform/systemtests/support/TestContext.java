@@ -1,31 +1,19 @@
 package com.gym.crm.platform.systemtests.support;
 
 import io.restassured.response.Response;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.HashMap;
 import java.util.Map;
 
+@Getter
+@Setter
 public class TestContext {
 
     private Response lastResponse;
     private String token;
     private final Map<String, Object> values = new HashMap<>();
-
-    public Response getLastResponse() {
-        return lastResponse;
-    }
-
-    public void setLastResponse(Response lastResponse) {
-        this.lastResponse = lastResponse;
-    }
-
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
-    }
 
     public void put(String key, Object value) {
         values.put(key, value);

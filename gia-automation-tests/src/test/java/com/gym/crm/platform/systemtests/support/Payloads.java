@@ -1,12 +1,13 @@
 package com.gym.crm.platform.systemtests.support;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
 import java.time.LocalDate;
 import java.util.Map;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class Payloads {
-
-    private Payloads() {
-    }
 
     public static Map<String, Object> login(String username, String password) {
         return Map.of("username", username, "password", password);
