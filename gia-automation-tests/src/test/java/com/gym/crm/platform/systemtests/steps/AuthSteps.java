@@ -22,13 +22,13 @@ public class AuthSteps {
         this.coreClient = new ApiClient(TestProperties.coreBaseUrl());
     }
 
-    @Given("an authenticated gym user")
+    @Given("authenticated gym user")
     public void anAuthenticatedGymUser() {
         aGymUserIsRegistered();
         theGymUserIsAuthenticated();
     }
 
-    @Given("a gym user is registered")
+    @Given("gym user is registered")
     public void aGymUserIsRegistered() {
         if (context.getString("authUsername") != null) {
             return;
@@ -41,7 +41,7 @@ public class AuthSteps {
         context.put("authPassword", response.jsonPath().getString("password"));
     }
 
-    @Given("the gym user is authenticated")
+    @Given("gym user is authenticated")
     public void theGymUserIsAuthenticated() {
         Response response = coreClient.post("/auth/login", null, Payloads.login(context.getString("authUsername"), context.getString("authPassword")));
 
@@ -50,12 +50,12 @@ public class AuthSteps {
         assertThat(context.getToken()).isNotBlank();
     }
 
-    @When("the user logs in with valid credentials")
+    @When("user logs in with valid credentials")
     public void theUserLogsInWithValidCredentials() {
         context.setLastResponse(coreClient.post("/auth/login", null, Payloads.login(TestProperties.defaultUsername(), TestProperties.defaultPassword())));
     }
 
-    @When("the user logs in with invalid credentials")
+    @When("user logs in with invalid credentials")
     public void theUserLogsInWithInvalidCredentials() {
         context.setLastResponse(coreClient.post("/auth/login", null, Payloads.login("unknown.user", "wrong-password")));
     }

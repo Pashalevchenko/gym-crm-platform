@@ -13,18 +13,18 @@ public class ResponseSteps {
         this.context = context;
     }
 
-    @Then("the response status is {int}")
+    @Then("response status is {int}")
     public void theResponseStatusIs(int status) {
         assertThat(context.getLastResponse().statusCode()).isEqualTo(status);
     }
 
-    @Then("the response contains generated credentials")
+    @Then("response contains generated credentials")
     public void theResponseContainsGeneratedCredentials() {
         assertThat(context.getLastResponse().jsonPath().getString("username")).isNotBlank();
         assertThat(context.getLastResponse().jsonPath().getString("password")).isNotBlank();
     }
 
-    @Then("the response contains an error body")
+    @Then("response contains error body")
     public void theResponseContainsAnErrorBody() {
         assertThat(context.getLastResponse().asString()).contains("error");
     }

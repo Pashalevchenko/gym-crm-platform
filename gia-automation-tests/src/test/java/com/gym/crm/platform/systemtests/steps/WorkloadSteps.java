@@ -67,7 +67,7 @@ public class WorkloadSteps {
                 .untilAsserted(() -> assertTrainerWorkloadDuration(trainerUsername, duration));
     }
 
-    @Then("the workload response contains duration {int}")
+    @Then("workload response contains duration {int}")
     public void theWorkloadResponseContainsDuration(int duration) {
         assertThat(context.getLastResponse().asString()).isEqualTo(String.valueOf(duration));
     }
