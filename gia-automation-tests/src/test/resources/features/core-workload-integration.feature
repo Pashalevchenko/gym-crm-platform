@@ -2,7 +2,7 @@
 Feature: Core and workload service integration
 
   @training-create @workload-get
-  Scenario: Creating a training updates trainer workload
+  Scenario: Creating training updates trainer workload
     When trainee is registered through core service with details
       | firstName   | FlowTrainee |
       | lastName    | User        |
@@ -23,7 +23,7 @@ Feature: Core and workload service integration
     And workload service eventually contains trainer duration 60
 
   @training-create @trainee-delete @workload-delete
-  Scenario: Deleting a trainee subtracts trainer workload
+  Scenario: Deleting trainee subtracts trainer workload
     When trainee is registered through core service with details
       | firstName   | FlowTrainee |
       | lastName    | DeleteUser  |
