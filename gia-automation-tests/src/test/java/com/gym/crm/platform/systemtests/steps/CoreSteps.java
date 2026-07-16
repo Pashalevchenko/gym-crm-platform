@@ -19,7 +19,7 @@ public class CoreSteps {
         this.coreClient = new ApiClient(TestProperties.coreBaseUrl());
     }
 
-    @When("a trainee is registered through core service")
+    @When("trainee is registered through core service")
     public void aTraineeIsRegisteredThroughCoreService() {
         Response response = coreClient.post("/trainees/register", null, Payloads.trainee(uniqueName("Trainee"), uniqueName("User")));
 
