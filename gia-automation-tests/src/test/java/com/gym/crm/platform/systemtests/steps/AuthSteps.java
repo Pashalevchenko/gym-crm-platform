@@ -43,11 +43,12 @@ public class AuthSteps {
 
     @Given("gym user is authenticated")
     public void theGymUserIsAuthenticated() {
-        Response response = coreClient.post("/auth/login", null, Payloads.login(context.getString("authUsername"), context.getString("authPassword")));
+        authenticate(context.getString("authUsername"), context.getString("authPassword"));
+    }
 
-        assertThat(response.statusCode()).isEqualTo(200);
-        context.setToken(response.jsonPath().getString("token"));
-        assertThat(context.getToken()).isNotBlank();
+    @Given("registered trainee is authenticated")
+    public void registeredTraineeIsAuthenticated() {
+        authenticate(context.getString("traineeUsername"), context.getString("traineePassword"));
     }
 
     @When("user logs in with valid credentials")
@@ -62,5 +63,13 @@ public class AuthSteps {
 
     private String uniqueName(String prefix) {
         return (prefix + System.nanoTime()).toLowerCase(Locale.ROOT);
+    }
+
+    private void authenticate(String username, String password) {
+        Response response = coreClient.post("/auth/login", null, Payloads.login(username, password));
+
+        assertThat(response.statusCode()).isEqualTo(200);
+        context.setToken(response.jsonPath().getString("token"));
+        assertThat(context.getToken()).isNotBlank();
     }
 }

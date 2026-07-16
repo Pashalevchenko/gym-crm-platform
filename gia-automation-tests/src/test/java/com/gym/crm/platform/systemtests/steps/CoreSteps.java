@@ -7,6 +7,10 @@ import com.gym.crm.platform.systemtests.support.TestContext;
 import io.cucumber.java.en.When;
 import io.restassured.response.Response;
 
+import io.cucumber.datatable.DataTable;
+
+import java.util.Map;
+
 import java.util.Locale;
 
 public class CoreSteps {
@@ -30,6 +34,38 @@ public class CoreSteps {
     @When("training types are requested without authorization")
     public void trainingTypesAreRequestedWithoutAuthorization() {
         context.setLastResponse(coreClient.get("/trainings/types", null, java.util.Map.of()));
+    }
+
+    @When("trainee is registered through core service with details")
+    public void traineeIsRegisteredThroughCoreServiceWithDetails(DataTable table) {
+        Response response = coreClient.post("/trainees/register", null, Payloads.trainee(details(table)));
+
+        context.setLastResponse(response);
+        rememberCredentials("trainee", response);
+    }
+
+    @When("trainer is registered through core service with details")
+    public void trainerIsRegisteredThroughCoreServiceWithDetails(DataTable table) {
+        Response response = coreClient.post("/trainers/register", null, Payloads.trainer(details(table)));
+
+        context.setLastResponse(response);
+        rememberCredentials("trainer", response);
+    }
+
+    @When("training is created through core service with details")
+    public void trainingIsCreatedThroughCoreServiceWithDetails(DataTable table) {
+        context.setLastResponse(coreClient.post("/trainings",
+                                context.getToken(),
+                                Payloads.training(context.getString("traineeUsername"), context.getString("trainerUsername"), details(table))));
+    }
+
+    @When("trainee is deleted through core service")
+    public void traineeIsDeletedThroughCoreService() {
+        context.setLastResponse(coreClient.delete("/trainees/" + context.getString("traineeUsername"), context.getToken()));
+    }
+
+    private Map<String, String> details(DataTable table) {
+        return table.asMap(String.class, String.class);
     }
 
     private void rememberCredentials(String prefix, Response response) {
