@@ -57,6 +57,21 @@ public class WorkloadSteps {
         context.setLastResponse(workloadClient.get("/trainer-workloads/system.trainer", null, Map.of("year", LocalDate.now().getYear(), "month", LocalDate.now().getMonthValue())));
     }
 
+    @Then("workload service eventually does not contain trainer workload")
+    public void workloadServiceEventuallyDoesNotContainTrainerWorkload() {
+        String trainerUsername = context.getString("trainerUsername");
+
+        Awaitility.await()
+                .atMost(Duration.ofSeconds(10))
+                .pollInterval(Duration.ofSeconds(1))
+                .untilAsserted(() -> assertTrainerWorkloadNotFound(trainerUsername));
+    }
+
+    @When("missing trainer monthly workload is requested through workload service")
+    public void missingTrainerMonthlyWorkloadIsRequestedThroughWorkloadService() {
+        context.setLastResponse(workloadClient.get("/trainer-workloads/missing.trainer", context.getToken(), Map.of("year", LocalDate.now().getYear(), "month", LocalDate.now().getMonthValue())));
+    }
+
     @Then("workload service eventually contains trainer duration {int}")
     public void workloadServiceEventuallyContainsTrainerDuration(int duration) {
         String trainerUsername = context.getString("trainerUsername");
@@ -81,5 +96,11 @@ public class WorkloadSteps {
 
         assertThat(response.statusCode()).isEqualTo(200);
         assertThat(response.asString()).contains(String.valueOf(duration));
+    }
+
+    private void assertTrainerWorkloadNotFound(String trainerUsername) {
+        var response = workloadClient.get("/trainer-workloads/" + trainerUsername, context.getToken(), Map.of("year", LocalDate.now().getYear(), "month", LocalDate.now().getMonthValue()));
+
+        assertThat(response.statusCode()).isEqualTo(404);
     }
 }

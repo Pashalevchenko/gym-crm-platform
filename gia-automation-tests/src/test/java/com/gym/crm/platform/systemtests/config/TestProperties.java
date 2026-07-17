@@ -1,11 +1,13 @@
 package com.gym.crm.platform.systemtests.config;
 
+import com.gym.crm.platform.systemtests.support.AutomationTestStack;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class TestProperties {
 
+    private static final String STACK_ENABLED = "system.tests.stack.enabled";
     private static final String CORE_BASE_URL = "system.tests.core.base-url";
     private static final String WORKLOAD_BASE_URL = "system.tests.workload.base-url";
     private static final String DEFAULT_USERNAME = "system.tests.default-username";
@@ -16,10 +18,18 @@ public final class TestProperties {
     private static final String LOCAL_PASSWORD = "password";
 
     public static String coreBaseUrl() {
+        if (isStackEnabled()) {
+            return AutomationTestStack.coreBaseUrl();
+        }
+
         return property(CORE_BASE_URL, LOCAL_CORE_BASE_URL);
     }
 
     public static String workloadBaseUrl() {
+        if (isStackEnabled()) {
+            return AutomationTestStack.workloadBaseUrl();
+        }
+
         return property(WORKLOAD_BASE_URL, LOCAL_WORKLOAD_BASE_URL);
     }
 
@@ -39,5 +49,9 @@ public final class TestProperties {
         }
 
         return value;
+    }
+
+    private static boolean isStackEnabled() {
+        return Boolean.parseBoolean(System.getProperty(STACK_ENABLED, "false"));
     }
 }

@@ -9,7 +9,8 @@ Feature: Gym core service component API
 
   @auth-login
   Scenario: Reject invalid login credentials
-    When user logs in with invalid credentials
+    Given gym user is registered
+    When registered user logs in with wrong password
     Then response status is 401
     And response contains error body
 
