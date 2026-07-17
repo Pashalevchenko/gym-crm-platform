@@ -14,6 +14,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class AuthSteps {
 
+    private static final String AUTH_USERNAME_KEY = "authUsername";
+    private static final String WRONG_PASSWORD = "wrong-password";
+
     private final TestContext context;
     private final ApiClient coreClient;
 
@@ -59,6 +62,11 @@ public class AuthSteps {
     @When("user logs in with invalid credentials")
     public void theUserLogsInWithInvalidCredentials() {
         context.setLastResponse(coreClient.post("/auth/login", null, Payloads.createLoginPayload("unknown.user", "wrong-password")));
+    }
+
+    @When("registered user logs in with wrong password")
+    public void registeredUserLogsInWithWrongPassword() {
+        context.setLastResponse(coreClient.post("/auth/login", null, Payloads.createLoginPayload(context.getString(AUTH_USERNAME_KEY), WRONG_PASSWORD)));
     }
 
     private String uniqueName(String prefix) {

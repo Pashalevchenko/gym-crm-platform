@@ -18,12 +18,20 @@ Feature: Workload service component API
     Then response status is 200
     And workload response contains duration 45
 
-  @workload-validation
+  @workload-validation @exception-handling
   Scenario: Reject invalid workload update request
     Given gym user is registered
     And gym user is authenticated
     When invalid trainer workload is sent through workload service
     Then response status is 400
+    And response contains error body
+
+  @workload-edge-case @edge-case
+  Scenario: Return not found for missing trainer workload
+    Given gym user is registered
+    And gym user is authenticated
+    When missing trainer monthly workload is requested through workload service
+    Then response status is 404
     And response contains error body
 
   @workload-security

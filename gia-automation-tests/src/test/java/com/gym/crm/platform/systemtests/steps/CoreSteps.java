@@ -31,6 +31,15 @@ public class CoreSteps {
         rememberCredentials("trainee", response);
     }
 
+    @When("invalid training is created through core service with details")
+    public void invalidTrainingIsCreatedThroughCoreServiceWithDetails(DataTable table) {
+        Map<String, String> details = table.asMap(String.class, String.class);
+
+        context.setLastResponse(coreClient.post("/trainings",
+                                                context.getToken(),
+                                                Payloads.createTrainingPayload(context.getString("traineeUsername"), context.getString("trainerUsername"), details)));
+    }
+
     @When("training types are requested without authorization")
     public void trainingTypesAreRequestedWithoutAuthorization() {
         context.setLastResponse(coreClient.get("/trainings/types", null, java.util.Map.of()));
