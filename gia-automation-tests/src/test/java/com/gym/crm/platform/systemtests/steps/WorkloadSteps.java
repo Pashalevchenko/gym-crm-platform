@@ -37,7 +37,7 @@ public class WorkloadSteps {
         context.put(TRAINING_YEAR, trainingDate.getYear());
         context.put(TRAINING_MONTH, trainingDate.getMonthValue());
 
-        context.setLastResponse(workloadClient.put("/trainer-workloads", context.getToken(), Payloads.workload(trainerUsername, 45)));
+        context.setLastResponse(workloadClient.put("/trainer-workloads", context.getToken(), Payloads.createWorkloadPayload(trainerUsername, 45)));
     }
 
     @When("trainer monthly workload is requested through workload service")
@@ -49,7 +49,7 @@ public class WorkloadSteps {
 
     @When("invalid trainer workload is sent through workload service")
     public void invalidTrainerWorkloadIsSentThroughWorkloadService() {
-        context.setLastResponse(workloadClient.put("/trainer-workloads", context.getToken(), Payloads.workloadWithoutUsername(45)));
+        context.setLastResponse(workloadClient.put("/trainer-workloads", context.getToken(), Payloads.createWorkloadPayloadWithoutUsername(45)));
     }
 
     @When("trainer workload is requested without authorization")

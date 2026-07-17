@@ -34,7 +34,7 @@ public class AuthSteps {
             return;
         }
 
-        Response response = coreClient.post("/trainees/register", null, Payloads.trainee(uniqueName("Auth"), uniqueName("User")));
+        Response response = coreClient.post("/trainees/register", null, Payloads.createTraineePayload(uniqueName("Auth"), uniqueName("User")));
 
         assertThat(response.statusCode()).isEqualTo(200);
         context.put("authUsername", response.jsonPath().getString("username"));
@@ -53,12 +53,12 @@ public class AuthSteps {
 
     @When("user logs in with valid credentials")
     public void theUserLogsInWithValidCredentials() {
-        context.setLastResponse(coreClient.post("/auth/login", null, Payloads.login(TestProperties.defaultUsername(), TestProperties.defaultPassword())));
+        context.setLastResponse(coreClient.post("/auth/login", null, Payloads.createLoginPayload(TestProperties.defaultUsername(), TestProperties.defaultPassword())));
     }
 
     @When("user logs in with invalid credentials")
     public void theUserLogsInWithInvalidCredentials() {
-        context.setLastResponse(coreClient.post("/auth/login", null, Payloads.login("unknown.user", "wrong-password")));
+        context.setLastResponse(coreClient.post("/auth/login", null, Payloads.createLoginPayload("unknown.user", "wrong-password")));
     }
 
     private String uniqueName(String prefix) {
@@ -66,7 +66,7 @@ public class AuthSteps {
     }
 
     private void authenticate(String username, String password) {
-        Response response = coreClient.post("/auth/login", null, Payloads.login(username, password));
+        Response response = coreClient.post("/auth/login", null, Payloads.createLoginPayload(username, password));
 
         assertThat(response.statusCode()).isEqualTo(200);
         context.setToken(response.jsonPath().getString("token"));

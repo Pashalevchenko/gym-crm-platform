@@ -25,7 +25,7 @@ public class CoreSteps {
 
     @When("trainee is registered through core service")
     public void aTraineeIsRegisteredThroughCoreService() {
-        Response response = coreClient.post("/trainees/register", null, Payloads.trainee(uniqueName("Trainee"), uniqueName("User")));
+        Response response = coreClient.post("/trainees/register", null, Payloads.createTraineePayload(uniqueName("Trainee"), uniqueName("User")));
 
         context.setLastResponse(response);
         rememberCredentials("trainee", response);
@@ -38,7 +38,7 @@ public class CoreSteps {
 
     @When("trainee is registered through core service with details")
     public void traineeIsRegisteredThroughCoreServiceWithDetails(DataTable table) {
-        Response response = coreClient.post("/trainees/register", null, Payloads.trainee(details(table)));
+        Response response = coreClient.post("/trainees/register", null, Payloads.createTraineePayload(details(table)));
 
         context.setLastResponse(response);
         rememberCredentials("trainee", response);
@@ -46,7 +46,7 @@ public class CoreSteps {
 
     @When("trainer is registered through core service with details")
     public void trainerIsRegisteredThroughCoreServiceWithDetails(DataTable table) {
-        Response response = coreClient.post("/trainers/register", null, Payloads.trainer(details(table)));
+        Response response = coreClient.post("/trainers/register", null, Payloads.createTrainerPayload(details(table)));
 
         context.setLastResponse(response);
         rememberCredentials("trainer", response);
@@ -56,7 +56,7 @@ public class CoreSteps {
     public void trainingIsCreatedThroughCoreServiceWithDetails(DataTable table) {
         context.setLastResponse(coreClient.post("/trainings",
                                 context.getToken(),
-                                Payloads.training(context.getString("traineeUsername"), context.getString("trainerUsername"), details(table))));
+                                Payloads.createTrainingPayload(context.getString("traineeUsername"), context.getString("trainerUsername"), details(table))));
     }
 
     @When("trainee is deleted through core service")
