@@ -1,5 +1,7 @@
 package com.gym.crm.platform.systemtests.support;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.containers.Network;
@@ -10,9 +12,11 @@ import org.testcontainers.lifecycle.Startables;
 import org.testcontainers.utility.DockerImageName;
 
 import java.time.Duration;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class AutomationTestStack {
 
     private static final String POSTGRES_IMAGE = "postgres:16-alpine";
@@ -60,9 +64,6 @@ public final class AutomationTestStack {
     private static GenericContainer<?> core;
     private static GenericContainer<?> workload;
     private static GenericContainer<?> gateway;
-
-    private AutomationTestStack() {
-    }
 
     public static synchronized void start() {
         if (gateway != null) {
@@ -180,32 +181,45 @@ public final class AutomationTestStack {
     private static GenericContainer<?> createCoreContainer() {
         return applicationContainer(CORE_IMAGE, CORE_PORT, CORE_ALIAS)
                 .withEnv(commonServiceEnvironment())
-                .withEnv(Map.ofEntries(Map.entry("SPRING_DATASOURCE_URL", postgresJdbcUrl()),
-                                       Map.entry("SPRING_DATASOURCE_USERNAME", DATABASE_USER),
-                                       Map.entry("SPRING_DATASOURCE_PASSWORD", DATABASE_PASSWORD),
-                                       Map.entry("DB_URL", postgresJdbcUrl()),
-                                       Map.entry("DB_USERNAME", DATABASE_USER),
-                                       Map.entry("DB_PASSWORD", DATABASE_PASSWORD),
-                                       Map.entry("SPRING_ACTIVEMQ_BROKER_URL", brokerUrl()),
-                                       Map.entry("ACTIVEMQ_BROKER_URL", brokerUrl()),
-                                       Map.entry("ACTIVEMQ_USER", ACTIVEMQ_USER),
-                                       Map.entry("ACTIVEMQ_PASSWORD", ACTIVEMQ_PASSWORD),
-                                       Map.entry("TRAINER_WORKLOAD_QUEUE", TRAINER_WORKLOAD_QUEUE)))
+                .withEnv(coreEnvironment())
                 .waitingFor(Wait.forListeningPort().withStartupTimeout(STARTUP_TIMEOUT));
+    }
+
+    private static Map<String, String> coreEnvironment() {
+        Map<String, String> environment = new HashMap<>();
+
+        environment.put("SPRING_DATASOURCE_URL", postgresJdbcUrl());
+        environment.put("SPRING_DATASOURCE_USERNAME", DATABASE_USER);
+        environment.put("SPRING_DATASOURCE_PASSWORD", DATABASE_PASSWORD);
+        environment.put("DB_URL", postgresJdbcUrl());
+        environment.put("DB_USERNAME", DATABASE_USER);
+        environment.put("DB_PASSWORD", DATABASE_PASSWORD);
+        environment.put("SPRING_ACTIVEMQ_BROKER_URL", brokerUrl());
+        environment.put("ACTIVEMQ_BROKER_URL", brokerUrl());
+        environment.put("ACTIVEMQ_USER", ACTIVEMQ_USER);
+        environment.put("ACTIVEMQ_PASSWORD", ACTIVEMQ_PASSWORD);
+        environment.put("WORKLOAD_SERVICE_BASE_URL", workloadInternalBaseUrl());
+        environment.put("TRAINER_WORKLOAD_QUEUE", TRAINER_WORKLOAD_QUEUE);
+
+        return environment;
     }
 
     private static GenericContainer<?> createWorkloadContainer() {
         return applicationContainer(WORKLOAD_IMAGE, WORKLOAD_PORT, WORKLOAD_ALIAS)
                 .withEnv(commonServiceEnvironment())
-                .withEnv(Map.of("SPRING_DATA_MONGODB_URI", mongoUri(),
-                                "MONGODB_URI", mongoUri(),
-                                "SPRING_ACTIVEMQ_BROKER_URL", brokerUrl(),
-                                "ACTIVEMQ_BROKER_URL", brokerUrl(),
-                                "ACTIVEMQ_USER", ACTIVEMQ_USER,
-                                "ACTIVEMQ_PASSWORD", ACTIVEMQ_PASSWORD,
-                                "TRAINER_WORKLOAD_QUEUE", TRAINER_WORKLOAD_QUEUE,
-                                "TRAINER_WORKLOAD_DLQ", TRAINER_WORKLOAD_DLQ))
+                .withEnv(workloadEnvironment())
                 .waitingFor(Wait.forListeningPort().withStartupTimeout(STARTUP_TIMEOUT));
+    }
+
+    private static Map<String, String> workloadEnvironment() {
+        return Map.of("SPRING_DATA_MONGODB_URI", mongoUri(),
+                      "MONGODB_URI", mongoUri(),
+                      "SPRING_ACTIVEMQ_BROKER_URL", brokerUrl(),
+                      "ACTIVEMQ_BROKER_URL", brokerUrl(),
+                      "ACTIVEMQ_USER", ACTIVEMQ_USER,
+                      "ACTIVEMQ_PASSWORD", ACTIVEMQ_PASSWORD,
+                      "TRAINER_WORKLOAD_QUEUE", TRAINER_WORKLOAD_QUEUE,
+                      "TRAINER_WORKLOAD_DLQ", TRAINER_WORKLOAD_DLQ);
     }
 
     private static GenericContainer<?> createGatewayContainer() {
@@ -251,6 +265,10 @@ public final class AutomationTestStack {
 
     private static String eurekaUrl() {
         return "http://" + DISCOVERY_ALIAS + ":" + DISCOVERY_PORT + "/eureka/";
+    }
+
+    private static String workloadInternalBaseUrl() {
+        return "http://" + WORKLOAD_ALIAS + ":" + WORKLOAD_PORT + "/workload-service/api/v1";
     }
 
     private static String imagePropertyName(String alias) {
