@@ -22,7 +22,7 @@
                              unique="true"
                              uniqueConstraintName="uk_users_username"/>
             </column>
-            <column name="password" type="VARCHAR(50)">
+            <column name="password" type="VARCHAR(100)">
                 <constraints nullable="false"/>
             </column>
             <column name="is_active" type="BOOLEAN">
@@ -166,5 +166,20 @@
                 referencedTableName="trainers"
                 referencedColumnNames="id"
                 constraintName="fk_trainee_trainer_trainers"/>
+    </changeSet>
+
+    <changeSet id="003-insert-training-types" author="gym">
+        <insert tableName="training_types">
+            <column name="training_type_name" value="Yoga"/>
+        </insert>
+        <insert tableName="training_types">
+            <column name="training_type_name" value="Fitness"/>
+        </insert>
+        <insert tableName="training_types">
+            <column name="training_type_name" value="Cardio"/>
+        </insert>
+        <insert tableName="training_types">
+            <column name="training_type_name" value="Strength"/>
+        </insert>
     </changeSet>
 </databaseChangeLog>

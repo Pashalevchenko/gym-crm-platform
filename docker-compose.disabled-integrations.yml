@@ -1,0 +1,80 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: gym-postgres-disabled
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    networks:
+      - gym-disabled-network
+
+  mongodb:
+    image: mongo:7.0.12
+    container_name: gym-mongodb-disabled
+    ports:
+      - "${MONGODB_PORT}:27017"
+    networks:
+      - gym-disabled-network
+
+  gym-core-service:
+    build:
+      context: .
+      dockerfile: gym-core-service/Dockerfile
+    image: gym-core-service:disabled
+    container_name: gym-core-service-disabled
+    depends_on:
+      - postgres
+    environment:
+      SERVER_PORT: ${GYM_CORE_SERVICE_PORT}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      SPRING_AUTOCONFIGURE_EXCLUDE: >-
+        org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration,
+        org.springframework.boot.autoconfigure.data.redis.RedisReactiveAutoConfiguration,
+        org.springframework.boot.autoconfigure.jms.activemq.ActiveMQAutoConfiguration
+      SPRING_JMS_LISTENER_AUTO_STARTUP: "false"
+      EUREKA_CLIENT_ENABLED: "false"
+      JWT_SECRET: ${JWT_SECRET}
+      TRAINER_WORKLOAD_QUEUE: ${TRAINER_WORKLOAD_QUEUE}
+      WORKLOAD_SERVICE_BASE_URL: http://workload-service-disabled:8082/workload-service/api/v1
+    ports:
+      - "${GYM_CORE_SERVICE_PORT}:8081"
+    networks:
+      - gym-disabled-network
+
+  workload-service:
+    build:
+      context: .
+      dockerfile: workload-service/Dockerfile
+    image: workload-service:disabled
+    container_name: workload-service-disabled
+    depends_on:
+      - mongodb
+    environment:
+      SERVER_PORT: ${WORKLOAD_SERVICE_PORT}
+      MONGODB_URI: mongodb://mongodb:27017/${MONGODB_DATABASE}
+      SPRING_AUTOCONFIGURE_EXCLUDE: >-
+        org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration,
+        org.springframework.boot.autoconfigure.data.redis.RedisReactiveAutoConfiguration,
+        org.springframework.boot.autoconfigure.jms.activemq.ActiveMQAutoConfiguration
+      SPRING_JMS_LISTENER_AUTO_STARTUP: "false"
+      EUREKA_CLIENT_ENABLED: "false"
+      JWT_SECRET: ${JWT_SECRET}
+      TRAINER_WORKLOAD_QUEUE: ${TRAINER_WORKLOAD_QUEUE}
+      TRAINER_WORKLOAD_DLQ: ${TRAINER_WORKLOAD_DLQ}
+      WORKLOAD_MESSAGE_MAX_REDELIVERIES: ${WORKLOAD_MESSAGE_MAX_REDELIVERIES}
+      WORKLOAD_MESSAGE_INITIAL_REDELIVERY_DELAY_MS: ${WORKLOAD_MESSAGE_INITIAL_REDELIVERY_DELAY_MS}
+      WORKLOAD_MESSAGE_REDELIVERY_DELAY_MS: ${WORKLOAD_MESSAGE_REDELIVERY_DELAY_MS}
+      WORKLOAD_MESSAGE_CONSUMER_CONCURRENCY: ${WORKLOAD_MESSAGE_CONSUMER_CONCURRENCY}
+    ports:
+      - "${WORKLOAD_SERVICE_PORT}:8082"
+    networks:
+      - gym-disabled-network
+
+networks:
+  gym-disabled-network:
+    driver: bridge
