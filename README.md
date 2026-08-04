@@ -253,3 +253,38 @@ mvn -pl system-tests test -DskipSystemTests=false ^
   -Ddefault.username=billy.herrington ^
   -Ddefault.password=password
 ```
+
+## 9. Docker startup
+
+Docker can be used to build service images and run the platform in an isolated local environment.
+
+Build and run the main services with disabled external integrations:
+
+```bash
+docker compose -f docker-compose.disabled-integrations.yml up --build
+```
+
+Build and run the main services with enabled external integrations:
+```bash
+docker compose -f docker-compose.yml up --build
+```
+
+This mode starts:
+```text
+discovery-server
+api-gateway
+gym-core-service
+workload-service
+PostgreSQL
+Redis
+MongoDB
+ActiveMQ Classic
+```
+
+Check running containers:
+```bash
+docker compose ps
+```
+Docker Compose reads local environment variables from the `.env` file.
+
+Create it from the example file `.env.example` before the first Docker startup
